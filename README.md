@@ -1,6 +1,6 @@
 # arduino-mcs51
 
-面向 STC MCS51 芯片的独立 Arduino C++11 平台，版本 **0.1.0**。FQBN 为 `stc:mcs51:<板型 ID>`，可与 `stc:mcs251` 并存。当前完成 Windows x64 编译链适配；尚未进行本项目的实板验收。
+面向 STC MCS51 芯片的独立 Arduino C++11 平台，版本 **0.0.1**。FQBN 为 `stc:mcs51:<板型 ID>`，可与 `stc:mcs251` 并存。当前完成 Windows x64 编译链适配；尚未进行本项目的实板验收。
 
 芯片定义、引脚和 C HAL 来自工作区 `arduino-mcs251` 中保留的 MCS51 历史实现；构建适配器基于当前原生 Rust 驱动，使用现有 STCXX 0.3.0 的 Clang → LLVM-CBE → SDCC 工具链和 `stc-cli` 烧录器。具体来源见 [SOURCES.md](SOURCES.md)。
 
@@ -39,6 +39,8 @@ Expand-Archive ../stcxx/dist/stcxx-toolchain-0.3.0-windows-x86_64.zip .build/too
 
 ## Arduino IDE 手动安装
 
+从 [v0.0.1 Release](https://github.com/coloz/arduino-mcs51/releases/tag/v0.0.1) 下载 `arduino-mcs51-0.0.1-windows-x86_64.zip`，将其中的 `arduino-mcs51-0.0.1` 目录作为 `<sketchbook>/hardware/stc/mcs51` 使用。此包包含 Windows x64 原生驱动；STCXX 0.3.0 工具链和 `stc-cli` 需另行安装。
+
 将本项目复制到 `<sketchbook>/hardware/stc/mcs51`，保留 `cores`、`variants`、`libraries`、`examples`、`platform.txt`、`boards.txt` 和 `tools/stcxx-driver` 中的原生驱动、锁文件与许可证。不要复制 `.build` 或 Cargo `target`。已安装 `stcxx-toolchain` 与 `stc-cli` 时，Arduino 使用其工具路径；否则在平台目录创建 `platform.local.txt`，填入实际路径：
 
 ```ini
@@ -46,7 +48,7 @@ runtime.tools.stcxx-toolchain.path=D:/tools/stcxx-toolchain
 runtime.tools.stc-cli.path=D:/Git/stc51/stc-cli/target/release
 ```
 
-重新加载开发板数据，选择 `mcs51` 下的实际芯片。当前尚未发布开发板管理器索引或远程安装包。
+重新加载开发板数据，选择 `mcs51` 下的实际芯片。当前尚未发布开发板管理器索引，请使用上述方式手动安装。
 
 ## 时钟和烧录
 
