@@ -1,0 +1,8 @@
+.build/
+dist/
+target/
+**/target/
+tools/stcxx-driver/stcxx
+tools/stcxx-driver/stcxx.exe
+tools/stcxx-driver/LICENSES
+

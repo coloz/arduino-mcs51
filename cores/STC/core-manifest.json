@@ -1,0 +1,75 @@
+{
+  "schema_version": 2,
+  "profile": "stc-arduino-cxx-v1-class-layer",
+  "qualification": "EXPERIMENTAL_MCS51_COMPILE_LINK",
+  "platform_cpp_enabled": true,
+  "platform_cpp_activation": "Default on every board",
+  "implemented_target_profiles": {
+    "mcs51": {
+      "target_triple": "msp430-stc51-none-eabi",
+      "data_layout": "e-m:e-p:24:8-p1:16:8-P1-i8:8-i16:8-i32:8-i64:8-i128:8-f32:8-f64:8-f128:8-a:8-n8:16:32-S8",
+      "abi_identity_symbol": "__stcxx_abi_stc_arduino_cxx_v1_mcs51_le_size2_pdiff4_gptr3_fnptr2_guard1_direct",
+      "ordinary_function_pointer_bytes": 2,
+      "function_reference_storage_bytes": 2,
+      "data_member_pointer_bytes": 2,
+      "member_function_pointer_bytes": 4,
+      "member_pointer_codegen_integer_bits": 16,
+      "member_call_program_address_space": 1,
+      "sdcc_inputs": {
+        "libsdcc_sha256": "1340d22653067cf97714aa8f0edb6378a1c02da8910005d0323f0e6a7810e6b2",
+        "target_runtime_sha256": "e4f302ed82fb57da3d197c6e5e848719798dc4e2fb7a45f5e546d6af3a006653"
+      }
+    }
+  },
+  "validation": "VALIDATION.md",
+  "api_version": 1,
+  "include_directories": [
+    ".",
+    "runtime/include"
+  ],
+  "public_header_contract": {
+    "public_include_directory": ".",
+    "class_headers": [
+      "Client.h",
+      "Server.h",
+      "Udp.h",
+      "Print.h",
+      "Printable.h",
+      "Stream.h",
+      "WString.h",
+      "IPAddress.h",
+      "pgmspace.h",
+      "new.h",
+      "HardwareSerial.h"
+    ],
+    "activation_condition": "defined(__cplusplus)"
+  },
+  "sources": [
+    "HardwareSerial.cpp",
+    "Print.cpp",
+    "Stream.cpp",
+    "WString.cpp",
+    "IPAddress.cpp",
+    "runtime/src/stcxx_allocator.cpp",
+    "runtime/src/stcxx_copysign.c",
+    "runtime/src/stcxx_itoa.cpp",
+    "runtime/src/stcxx_math.cpp",
+    "runtime/src/stcxx_new.cpp",
+    "runtime/src/stcxx_runtime.cpp",
+    "runtime/src/stcxx_stdio.c",
+    "runtime/src/stcxx_heap.c",
+    "runtime/src/stcxx_heap_state.c",
+    "runtime/src/stcxx_libc_abi.c",
+    "runtime/src/stcxx_libc_calloc.c",
+    "runtime/src/stcxx_libc_realloc.c",
+    "runtime/src/stcxx_libc_memset.c",
+    "runtime/src/stcxx_libc_strchr.c",
+    "runtime/src/stcxx_libc_strrchr.c"
+  ],
+  "bundled_library_cpp_sources": [
+    "../../libraries/SPI/src/SPIClass.cpp",
+    "../../libraries/Wire/src/WireClass.cpp",
+    "../../libraries/SoftwareSerial/src/SoftwareSerialClass.cpp"
+  ],
+  "source_ownership": "sdk-sources.json"
+}

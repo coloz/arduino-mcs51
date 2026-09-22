@@ -1,0 +1,78 @@
+{
+  "schema_version": 1,
+  "shared_runtime": {
+    "source": "../stcxx/sdk/runtime",
+    "destination": "cores/STC/runtime",
+    "files": [
+      "include/algorithm",
+      "include/cctype",
+      "include/cmath",
+      "include/cstddef",
+      "include/cstdint",
+      "include/cstdlib",
+      "include/cstring",
+      "include/ctype.h",
+      "include/initializer_list",
+      "include/inttypes.h",
+      "include/limits",
+      "include/limits.h",
+      "include/math.h",
+      "include/new",
+      "include/stcxx_allocator.h",
+      "include/stcxx_console.h",
+      "include/stcxx_libc.h",
+      "include/stcxx_new.h",
+      "include/stdbool.h",
+      "include/stddef.h",
+      "include/stdint.h",
+      "include/stdio.h",
+      "include/stdlib.h",
+      "include/string.h",
+      "include/type_traits",
+      "include/utility",
+      "src/stcxx_allocator.cpp",
+      "src/stcxx_copysign.c",
+      "src/stcxx_itoa.cpp",
+      "src/stcxx_math.cpp",
+      "src/stcxx_new.cpp",
+      "src/stcxx_runtime.cpp",
+      "src/stcxx_stdio.c"
+    ]
+  },
+  "shared_arduino_api": {
+    "source": "../arduino-mcs251/cores/STC",
+    "destination": "cores/STC",
+    "files": [
+      "Client.h",
+      "Server.h",
+      "Udp.h",
+      "Print.h",
+      "Print.cpp",
+      "Printable.h",
+      "Stream.h",
+      "Stream.cpp",
+      "WString.h",
+      "WString.cpp",
+      "IPAddress.h",
+      "IPAddress.cpp",
+      "pgmspace.h",
+      "new.h"
+    ]
+  },
+  "native_runtime": {
+    "destination": "cores/STC/runtime",
+    "files": [
+      "include/stcxx_config.h",
+      "include/stcxx_runtime.h",
+      "src/stcxx_heap.c",
+      "src/stcxx_heap_state.c",
+      "src/stcxx_libc_abi.c",
+      "src/stcxx_libc_calloc.c",
+      "src/stcxx_libc_realloc.c",
+      "src/stcxx_libc_memset.c",
+      "src/stcxx_libc_strchr.c",
+      "src/stcxx_libc_strrchr.c"
+    ],
+    "reason": "MCS51 ABI: little endian, size_t=2, generic pointer=3, XDATA/function pointer=2; allocator and libc bridges remain platform-owned."
+  }
+}
