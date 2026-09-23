@@ -42,6 +42,51 @@
     "separate_pullup": false
   },
   "peripherals": {
+    "uart_count": 2,
+    "uart_routes": [
+      [
+        {
+          "selector": 0,
+          "rx": "P3.0",
+          "tx": "P3.1"
+        }
+      ],
+      [
+        {
+          "selector": 0,
+          "rx": "P1.2",
+          "tx": "P1.3"
+        },
+        {
+          "selector": 1,
+          "rx": "P4.2",
+          "tx": "P4.3"
+        }
+      ]
+    ],
+    "uart_timer_prescaler": false,
+    "i2c_count": 0,
+    "i2c_routes": [],
+    "spi_count": 1,
+    "spi_routes": [
+      {
+        "selector": 0,
+        "mosi": "P1.5",
+        "miso": "P1.6",
+        "sck": "P1.7",
+        "ss": "P1.4"
+      }
+    ],
+    "spi_dividers": [
+      4,
+      16,
+      64,
+      128
+    ],
+    "source": "https://www.stcmicro.com/datasheet/STC12C5A60S2-en.pdf",
+    "uart_timer_prescaler_base": 65182,
+    "uart1_prescaler": false,
+    "spi_pin_swap": false,
     "uart1": true,
     "uart1_buffered_rx": true,
     "timer0_clock_divider": null,

@@ -5,6 +5,8 @@ import { readFileSync, writeFileSync, mkdirSync, existsSync, readdirSync } from 
 import { dirname, join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
 
+import { peripheralFlags, peripheralHeader } from "./peripherals.mjs";
+
 const scriptDir = dirname(fileURLToPath(import.meta.url));
 const root = join(scriptDir, "..", "..");
 const databasePath = join(scriptDir, "devices.json");
@@ -167,7 +169,7 @@ function renderCoreFlags(device) {
   flags.push(`-DSTC_CORE_ADC_LAYOUT=${adcLayoutId(device)}`);
   flags.push(`-DSTC_CORE_PINMUX_PSWX1_BIT0_CLEAR=${device.pin_selector === "pswx1_bit0_clear_for_p5_4" ? 1 : 0}`);
   flags.push(`-DSTC_CORE_ADC_NATIVE_BITS=${device.adc === false ? 0 : device.adc.resolution_bits}`);
-  return flags.join(" ");
+  return [...flags, ...peripheralFlags(device)].join(" ");
 }
 
 function renderTimerFlags(device) {
@@ -641,7 +643,9 @@ function renderBoards(devices) {
       'build.cpp_core_flags':'--stack-auto -DSTCXX_CPP_CORE=1 -DSTCXX_FLASH_STRINGS=0 -DSTCXX_ENFORCE_NO_EXCEPTIONS_RTTI=1 -DSTCXX_HEAP_SIZE='+d.cpp_heap_bytes+'UL',
       'build.cpp_link_flags':'--stack-auto -DSTCXX_CPP_CORE=1', 'build.link_flags':'--iram-size 256',
       'upload.tool':'stc-cli', 'upload.tool.serial':'stc-cli', 'upload.protocol':'stc-cli',
-      'upload.transport':'uart', 'upload.model':d.model, 'upload.speed':115200,
+      // At 12 MHz the STC89/STC12 ISP dividers cannot closely match 115200.
+      'upload.transport':'uart', 'upload.model':d.model,
+      'upload.speed': ['STC89', 'STC12'].includes(d.family.toUpperCase()) ? 19200 : 115200,
       'upload.model_check_flags': d.family.toUpperCase().startsWith('AI8')?'--force-unverified-target':'',
       'upload.maximum_size':d.maximum_code_bytes, 'upload.maximum_data_size':d.idata_bytes+d.xdata_bytes,
       'upload.maximum_xdata_size':d.xdata_bytes,
@@ -739,10 +743,18 @@ ${pins.join("\n")}
 # define PIN_SPI_SCK  P5_4
 # define PIN_SPI_SS   P5_5
 #endif
+#ifdef __cplusplus
+#include <stdint.h>
+static const uint8_t MOSI = PIN_SPI_MOSI;
+static const uint8_t MISO = PIN_SPI_MISO;
+static const uint8_t SCK = PIN_SPI_SCK;
+static const uint8_t SS = PIN_SPI_SS;
+#else
 #define MOSI PIN_SPI_MOSI
 #define MISO PIN_SPI_MISO
 #define SCK  PIN_SPI_SCK
 #define SS   PIN_SPI_SS
+#endif
 
 #ifndef digitalPinToPort
 #define digitalPinToPort(pin) STC_PIN_PORT(pin)
@@ -804,6 +816,7 @@ ${masks}
 ${renderPinAliasMacro(device)}
 ${renderPhysicalAliasMacro(device)}
 ${analogDefinitions}
+${peripheralHeader(device)}
 
 #include "../_common/pins_arduino_common.h"
 
@@ -916,6 +929,7 @@ function renderMetadata(database, device) {
       separate_pullup: device.capabilities.separate_pullup === true,
     },
     peripherals: {
+      ...device.peripherals,
       uart1: device.capabilities.uart1 !== false,
       uart1_buffered_rx:
         device.capabilities.uart1 !== false && device.maximum_code_bytes > 2048,

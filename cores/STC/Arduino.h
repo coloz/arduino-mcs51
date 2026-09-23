@@ -186,6 +186,11 @@ void analogReference(uint8_t mode);
 void analogReadResolution(uint8_t bits);
 void analogWrite(uint8_t pin, int value) STC_REENTRANT;
 
+#define STC_INTERRUPT_OK 0u
+#define STC_INTERRUPT_INVALID 1u
+#define STC_INTERRUPT_UNSUPPORTED_MODE 2u
+uint8_t interruptModeSupported(uint8_t interrupt_number, int mode) STC_REENTRANT;
+uint8_t attachInterruptChecked(uint8_t interrupt_number, void (*callback)(void), int mode) STC_REENTRANT;
 void attachInterrupt(uint8_t interrupt_number, void (*callback)(void),
                      int mode) STC_REENTRANT;
 void detachInterrupt(uint8_t interrupt_number);

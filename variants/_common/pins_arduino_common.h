@@ -170,10 +170,18 @@
 # define PIN_SPI_SCK  P5_4
 # define PIN_SPI_SS   P5_5
 #endif
+#ifdef __cplusplus
+#include <stdint.h>
+static const uint8_t MOSI = PIN_SPI_MOSI;
+static const uint8_t MISO = PIN_SPI_MISO;
+static const uint8_t SCK = PIN_SPI_SCK;
+static const uint8_t SS = PIN_SPI_SS;
+#else
 #define MOSI PIN_SPI_MOSI
 #define MISO PIN_SPI_MISO
 #define SCK  PIN_SPI_SCK
 #define SS   PIN_SPI_SS
+#endif
 
 #ifndef digitalPinToPort
 #define digitalPinToPort(pin) STC_PIN_PORT(pin)

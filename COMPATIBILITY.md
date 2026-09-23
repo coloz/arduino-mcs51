@@ -2,9 +2,9 @@
 
 公共类行为以 SHA-256 锁定的官方 ArduinoCore-API 1.5.2 为对照，123 项主机检查覆盖 String、Print/Printable、Stream、IPAddress 和 Client。已提供 `arduino::` 类型别名、`pin_size_t`/`PinStatus`/`PinMode`、`bitToggle`，保留既有全局类名和扩展接口。目标构建还验证 C/C++ 头文件隔离、动态数学调用和全局构造函数。此范围不等于所有官方库或硬件功能都已实现。
 
-本版提供 C++11 sketch、C 驱动、GPIO、Timer0 时间基准、UART1、INT0/INT1、按型号声明的 ADC，以及 String/Print/Stream/HardwareSerial。附带 Wire（软件 I²C 主机）、SPI（软件 SPI）、SoftwareSerial、LiquidCrystal、Stepper。SPI 和 Wire 的默认引脚见各 variant；引脚可配置，需避免与中断或其他外设同时占用。
+本版提供 C++11 sketch、C 驱动、GPIO、Timer0 时间基准、按型号提供的 UART1–4、INT0/INT1、按型号声明的 ADC，以及 String/Print/Stream/HardwareSerial。附带 Wire（硬件/软件 I²C 主机，部分型号支持硬件从机）、SPI（硬件主机/软件回退）、SoftwareSerial、LiquidCrystal、Stepper。SPI 和 Wire 的默认引脚见各 variant；引脚可配置，需避免与中断或其他外设同时占用。
 
-`analogWrite` 当前按 Arduino 无 PWM 引脚的规则输出高/低电平，**不提供硬件 PWM**。USB、USB CDC/HID、CAN、DMA、EEPROM API、Wire 从机、Serial2/3/4 均未接入。STC8H8K64U/Ai8 的芯片硬件带 USB 不意味着本平台提供 USB 接口或 USB 上传。
+`analogWrite` 当前按 Arduino 无 PWM 引脚的规则输出高/低电平，**不提供硬件 PWM**。USB、USB CDC/HID、CAN、DMA、EEPROM API 尚未接入。UART、IIC、SPI 数量、路由、模式限制与其他未适配接口见 [硬件接口说明](HARDWARE_INTERFACES.md)。未提供 `tone`/`noTone`，SDK 也不附带 Servo、EEPROM 库；这些调用的编译边界探针位于 `tests/compile/boundaries`。STC8H8K64U/Ai8 的芯片硬件带 USB 不意味着本平台提供 USB 接口或 USB 上传。
 
 MCS51 ABI 为小端：`int` / `size_t` 16 位，`long` / `ptrdiff_t` 32 位，通用指针 24 位，函数指针 16 位，成员数据指针 16 位，成员函数指针 32 位，`float` / `double` 32 位。禁止混用 MCS251 的目标文件、头文件 ABI 或高地址 HEX。Clang 使用定制 `msp430-stc51-none-eabi` 前端，实际机器代码由 SDCC `-mmcs51` 生成。
 

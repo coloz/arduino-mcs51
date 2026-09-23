@@ -77,6 +77,29 @@
    ((pin) == (P1_6)) ? (6U) : \
    ((pin) == (P1_7)) ? (7U) : \
    (NOT_AN_ADC_CHANNEL))
+#define STC_VARIANT_UART_COUNT 2
+#define STC_VARIANT_I2C_COUNT 0
+#define STC_VARIANT_SPI_COUNT 1
+#define STC_VARIANT_UART1_ROUTE(rx,tx) (((rx) == P3_0 && (tx) == P3_1) ? 0u : ((rx) == P3_6 && (tx) == P3_7) ? 1u : ((rx) == P1_6 && (tx) == P1_7) ? 2u : 255u)
+#define PIN_SERIAL1_RX P3_0
+#define PIN_SERIAL1_TX P3_1
+#define STC_VARIANT_UART2_ROUTE(rx,tx) (((rx) == P1_0 && (tx) == P1_1) ? 0u : ((rx) == P4_6 && (tx) == P4_7) ? 1u : 255u)
+#define PIN_SERIAL2_RX P1_0
+#define PIN_SERIAL2_TX P1_1
+#define STC_VARIANT_UART3_ROUTE(rx,tx) (255u)
+#define PIN_SERIAL3_RX NOT_A_PIN
+#define PIN_SERIAL3_TX NOT_A_PIN
+#define STC_VARIANT_UART4_ROUTE(rx,tx) (255u)
+#define PIN_SERIAL4_RX NOT_A_PIN
+#define PIN_SERIAL4_TX NOT_A_PIN
+#define STC_VARIANT_I2C1_ROUTE(sda,scl) (255u)
+#define PIN_I2C1_SDA NOT_A_PIN
+#define PIN_I2C1_SCL NOT_A_PIN
+#define STC_VARIANT_SPI1_ROUTE(mosi,miso,sck) (((mosi) == P1_3 && (miso) == P1_4 && (sck) == P1_5) ? 0u : ((mosi) == P2_3 && (miso) == P2_2 && (sck) == P2_1) ? 1u : ((mosi) == P4_0 && (miso) == P4_1 && (sck) == P4_3) ? 2u : 255u)
+#define PIN_SPI1_MOSI P1_3
+#define PIN_SPI1_MISO P1_4
+#define PIN_SPI1_SCK P1_5
+#define PIN_SPI1_SS P1_2
 
 #include "../_common/pins_arduino_common.h"
 

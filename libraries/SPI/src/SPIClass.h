@@ -5,6 +5,13 @@
 #include <stdint.h>
 
 #include "stcxx_config.h"
+#ifndef STC_CORE_SPI_COUNT
+#define STC_CORE_SPI_COUNT 1
+#endif
+#define STC_SPI_OK 0u
+#define STC_SPI_INVALID 1u
+#define STC_SPI_BUSY 2u
+#define STC_SPI_TIMEOUT 3u
 
 #ifndef LSBFIRST
 # define LSBFIRST 0u
@@ -78,8 +85,8 @@ public:
 
     SPISettings(uint32_t clock, uint8_t bitOrder, uint8_t dataMode)
         : _clock(clock),
-          _bitOrder(bitOrder == LSBFIRST ? LSBFIRST : MSBFIRST),
-          _dataMode((uint8_t)(dataMode & 0x03u))
+          _bitOrder(bitOrder),
+          _dataMode(dataMode)
     {
     }
 
@@ -94,9 +101,16 @@ private:
 class SPIClass
 {
 public:
+    explicit SPIClass(uint8_t bus = 0u)
+        : _bus(bus), _clock(SPI_DEFAULT_CLOCK_HZ), _bitOrder(MSBFIRST),
+          _dataMode(SPI_MODE0) {}
     void begin();
     void end();
     void setPins(uint8_t mosi, uint8_t miso, uint8_t clock, uint8_t select);
+    uint8_t setPinsChecked(uint8_t mosi, uint8_t miso, uint8_t clock, uint8_t select);
+    uint8_t configurationError();
+    bool usingHardware() const;
+    uint8_t beginTransactionChecked(const SPISettings &settings);
 
     void beginTransaction(const SPISettings &settings);
     void beginTransaction(uint32_t clock, uint8_t bitOrder,
@@ -118,8 +132,17 @@ public:
     /* Software SPI has no peripheral interrupt to enable or disable. */
     void attachInterrupt() {}
     void detachInterrupt() {}
+private:
+    uint8_t _bus;
+    uint32_t _clock;
+    uint8_t _bitOrder;
+    uint8_t _dataMode;
 };
 
 extern SPIClass SPI;
+#if STC_CORE_SPI_COUNT > 1
+extern SPIClass SPI1;
+extern SPIClass SPI2;
+#endif
 
 #endif

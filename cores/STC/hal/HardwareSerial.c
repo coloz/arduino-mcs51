@@ -40,6 +40,17 @@ __sfr __at (0x8f) STC_SERIAL_INTCLKO;
 # if STC_CORE_SERIAL_BUFFERED_RX
 
 /* Timer1 and UART1 routing state temporarily owned by buffered Serial. */
+#if STC_CORE_UART1_PRESCALER
+static uint8_t serial_saved_prescaler;
+static void serial_prescaler(uint8_t restore)
+{
+    uint8_t enabled = IE & STC_IE_EA, gate = P_SW2 & 0x80u;
+    IE &= (uint8_t)~STC_IE_EA; P_SW2 |= 0x80u;
+    if (restore) STC_XFR8(0xfea1u) = serial_saved_prescaler;
+    else { serial_saved_prescaler = STC_XFR8(0xfea1u); STC_XFR8(0xfea1u) = 0u; }
+    P_SW2 = (P_SW2 & 0x7fu) | gate; IE |= enabled;
+}
+#endif
 static uint8_t serial_saved_tmod;
 static uint8_t serial_saved_th1;
 static uint8_t serial_saved_tl1;
@@ -305,10 +316,17 @@ static uint8_t stc_serial_calculate_reload(unsigned long baud,
 # endif /* STC_CORE_SERIAL_BUFFERED_RX */
 #endif /* STC_CORE_HAS_UART1 */
 
+/* The default P3.0/P3.1 path stays small. Custom routing is in a separate
+ * archive member and is pulled in only by setPinsChecked(). */
+uint8_t stc_uart1_route;
+void (*stc_uart1_pin_configure)(void) STC_REENTRANT;
+
 static void stc_serial_configure_uart1_pins(void)
 {
 #if STC_CORE_HAS_UART1
     uint8_t saved_ea = (uint8_t)(IE & STC_IE_EA);
+
+    if (stc_uart1_pin_configure) { stc_uart1_pin_configure(); return; }
 
     IE &= (uint8_t)~STC_IE_EA;
 
@@ -336,12 +354,17 @@ static void stc_serial_configure_uart1_pins(void)
 
 void Serial_begin(unsigned long baud)
 {
+    (void)Serial_beginChecked(baud);
+}
+
+bool Serial_beginChecked(unsigned long baud)
+{
 #if STC_CORE_HAS_UART1
     uint16_t reload;
     uint8_t double_baud;
 
     if (stc_serial_calculate_reload(baud, &reload, &double_baud) == 0u) {
-        return;
+        return false;
     }
 
     if (stc_uart1_started != 0u) {
@@ -369,6 +392,9 @@ void Serial_begin(unsigned long baud)
     IE &= (uint8_t)~STC_IE_ES;
     TCON &= (uint8_t)~(STC_TCON_TR1 | STC_SERIAL_TF1);
     IE &= (uint8_t)~STC_IE_ET1;
+# if STC_CORE_UART1_PRESCALER
+    serial_prescaler(0u);
+# endif
 
 # if !defined(STC_CORE_FAMILY_89)
     /* Select Timer1 rather than Timer2 and disable Timer1 clock output. */
@@ -384,7 +410,7 @@ void Serial_begin(unsigned long baud)
 # if STC_CORE_HAS_MODERN_UART1_BRT
     /* The family SFR layout selects P_SW1 (0x9a on STC16, otherwise 0xa2).
      * Do not emit this routing access on the classic STC12 UART profile. */
-    P_SW1 &= (uint8_t)~STC_SERIAL_UART1_ROUTE;
+    P_SW1 = (P_SW1 & (uint8_t)~STC_SERIAL_UART1_ROUTE) | (stc_uart1_route << 6);
     TMOD &= 0x0fu;             /* Timer1, 16-bit auto reload, not gated. */
     TH1 = (uint8_t)(reload >> 8);
     TL1 = (uint8_t)reload;
@@ -413,8 +439,10 @@ void Serial_begin(unsigned long baud)
     IE |= STC_IE_ES;
 # endif
     TCON |= STC_TCON_TR1;
+    return true;
 #else
     (void)baud;
+    return false;
 #endif
 }
 
@@ -437,6 +465,9 @@ void Serial_end(void)
     stc_serial_reset_rx();
     stc_uart1_tx_complete = 1u;
 
+# if STC_CORE_UART1_PRESCALER
+    serial_prescaler(1u);
+# endif
     TMOD = (uint8_t)((TMOD & 0x0fu) | (serial_saved_tmod & 0xf0u));
     TH1 = serial_saved_th1;
     TL1 = serial_saved_tl1;

@@ -26,10 +26,16 @@ fn suffix(path: &Path, ext: &str) -> PathBuf {
     PathBuf::from(format!("{}{ext}", path.display()))
 }
 fn write(path: &Path, bytes: &[u8]) -> Result<()> {
-    fs::create_dir_all(path.parent().context("missing output directory")?)?;
-    let mut temp = tempfile::NamedTempFile::new_in(path.parent().unwrap())?;
+    let parent = path.parent().context("missing output directory")?;
+    fs::create_dir_all(parent)?;
+    // tempfile's Windows rename does not add the extended-length path prefix.
+    // Canonicalize the existing directory (the output may not exist yet).
+    let parent = fs::canonicalize(parent)?;
+    let destination = parent.join(path.file_name().context("missing output filename")?);
+    let mut temp = tempfile::NamedTempFile::new_in(&parent)?;
     temp.write_all(bytes)?;
-    temp.persist(path)?;
+    temp.persist(&destination)
+        .with_context(|| format!("cannot persist {}", path.display()))?;
     Ok(())
 }
 fn safe_name(name: &str) -> Result<()> {
@@ -563,6 +569,19 @@ mod tests {
                 expected
             );
         }
+    }
+    #[test]
+    fn atomic_write_supports_long_paths_and_replacement() {
+        let temp = tempfile::tempdir().unwrap();
+        let directory = temp
+            .path()
+            .join("nested".repeat(20))
+            .join("nested".repeat(20));
+        let path = directory.join("HardwareSerial_print_number.c.rel.stcxx-c.json");
+        assert!(path.as_os_str().len() > 260);
+        write(&path, b"first").unwrap();
+        write(&path, b"replacement").unwrap();
+        assert_eq!(fs::read(&path).unwrap(), b"replacement");
     }
     #[test]
     fn bundles_check_inventory_and_relocate_cpp_metadata() {

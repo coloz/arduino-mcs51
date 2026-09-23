@@ -42,6 +42,29 @@
 #define analogInputToDigitalPin(index) (NOT_A_PIN)
 #define digitalPinToAnalogInput(pin) (NOT_AN_ANALOG_INPUT)
 #define STC_VARIANT_ADC_PIN_TO_CHANNEL(pin) (NOT_AN_ADC_CHANNEL)
+#define STC_VARIANT_UART_COUNT 1
+#define STC_VARIANT_I2C_COUNT 0
+#define STC_VARIANT_SPI_COUNT 0
+#define STC_VARIANT_UART1_ROUTE(rx,tx) (((rx) == P3_0 && (tx) == P3_1) ? 0u : 255u)
+#define PIN_SERIAL1_RX P3_0
+#define PIN_SERIAL1_TX P3_1
+#define STC_VARIANT_UART2_ROUTE(rx,tx) (255u)
+#define PIN_SERIAL2_RX NOT_A_PIN
+#define PIN_SERIAL2_TX NOT_A_PIN
+#define STC_VARIANT_UART3_ROUTE(rx,tx) (255u)
+#define PIN_SERIAL3_RX NOT_A_PIN
+#define PIN_SERIAL3_TX NOT_A_PIN
+#define STC_VARIANT_UART4_ROUTE(rx,tx) (255u)
+#define PIN_SERIAL4_RX NOT_A_PIN
+#define PIN_SERIAL4_TX NOT_A_PIN
+#define STC_VARIANT_I2C1_ROUTE(sda,scl) (255u)
+#define PIN_I2C1_SDA NOT_A_PIN
+#define PIN_I2C1_SCL NOT_A_PIN
+#define STC_VARIANT_SPI1_ROUTE(mosi,miso,sck) (255u)
+#define PIN_SPI1_MOSI NOT_A_PIN
+#define PIN_SPI1_MISO NOT_A_PIN
+#define PIN_SPI1_SCK NOT_A_PIN
+#define PIN_SPI1_SS NOT_A_PIN
 
 #include "../_common/pins_arduino_common.h"
 

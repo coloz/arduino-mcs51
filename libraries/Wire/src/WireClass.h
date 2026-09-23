@@ -6,6 +6,7 @@
 
 #include "stcxx_config.h"
 #include "Stream.h"
+#include "stc_family.h"
 
 #ifndef WIRE_BUFFER_LENGTH
 # define WIRE_BUFFER_LENGTH 32u
@@ -23,8 +24,7 @@
 # define WIRE_HAS_TIMEOUT 1
 #endif
 #ifndef WIRE_HAS_SLAVE
-/* The portable backend is a polling software controller, not a slave ISR. */
-# define WIRE_HAS_SLAVE 0
+# define WIRE_HAS_SLAVE (STC_CORE_I2C_COUNT > 0)
 #endif
 
 #ifndef WIRE_STATUS_SUCCESS
@@ -39,9 +39,19 @@
 class TwoWire : public Stream
 {
 public:
+    /* bus=0 is Wire, bus=1 is Wire1 when present. Unavailable buses are
+     * inert and report WIRE_STATUS_OTHER_ERROR through configurationError(). */
+    explicit TwoWire(uint8_t bus = 0) : _bus(bus) {}
     void begin();
+    void begin(uint8_t address);
+    void onReceive(void (*callback)(int));
+    void onRequest(void (*callback)(void));
     void end();
     void setPins(uint8_t data, uint8_t clock);
+    uint8_t setPinsChecked(uint8_t data, uint8_t clock);
+    uint8_t configurationError();
+    uint8_t lastError();
+    bool usingHardware();
     void setClock(uint32_t clock);
     void setWireTimeout(uint32_t timeout = 25000UL,
                         bool resetWithTimeout = false);
@@ -68,8 +78,13 @@ public:
     int available();
     int read();
     int peek();
+private:
+    uint8_t _bus;
 };
 
 extern TwoWire Wire;
+#if STC_CORE_I2C_COUNT > 1
+extern TwoWire Wire1;
+#endif
 
 #endif

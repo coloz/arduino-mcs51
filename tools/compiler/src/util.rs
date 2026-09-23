@@ -311,9 +311,16 @@ pub fn probe(program: &Path, args: &[String]) -> Result<std::process::Output> {
     Ok(command.output()?)
 }
 pub fn atomic_write(path: &Path, bytes: &[u8]) -> Result<()> {
-    let mut pending = tempfile::NamedTempFile::new_in(path.parent().context("missing parent")?)?;
+    // Keep tempfile's Windows persist/rename within the extended-length path
+    // namespace, including when the destination has not been created yet.
+    let parent = fs::canonicalize(path.parent().context("missing parent")?)?;
+    let destination = parent.join(path.file_name().context("missing filename")?);
+    let mut pending = tempfile::NamedTempFile::new_in(&parent)?;
     pending.write_all(bytes)?;
-    pending.persist(path).map_err(|e| e.error)?;
+    pending
+        .persist(&destination)
+        .map_err(|e| e.error)
+        .with_context(|| format!("cannot persist {}", path.display()))?;
     Ok(())
 }
 pub fn command_flag(args: &[String], flag: &str) -> Result<String> {

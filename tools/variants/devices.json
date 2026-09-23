@@ -81,7 +81,136 @@
       ],
       "max_io": 60,
       "package_dependent": true,
-      "official_url": "https://www.stcmicro.com/cn/stc/stc8h8k64u.html"
+      "official_url": "https://www.stcmicro.com/cn/stc/stc8h8k64u.html",
+      "peripherals": {
+        "uart_count": 4,
+        "uart_routes": [
+          [
+            {
+              "selector": 0,
+              "rx": "P3.0",
+              "tx": "P3.1"
+            },
+            {
+              "selector": 1,
+              "rx": "P3.6",
+              "tx": "P3.7"
+            },
+            {
+              "selector": 2,
+              "rx": "P1.6",
+              "tx": "P1.7"
+            },
+            {
+              "selector": 3,
+              "rx": "P4.3",
+              "tx": "P4.4"
+            }
+          ],
+          [
+            {
+              "selector": 0,
+              "rx": "P1.0",
+              "tx": "P1.1"
+            },
+            {
+              "selector": 1,
+              "rx": "P4.6",
+              "tx": "P4.7"
+            }
+          ],
+          [
+            {
+              "selector": 0,
+              "rx": "P0.0",
+              "tx": "P0.1"
+            },
+            {
+              "selector": 1,
+              "rx": "P5.0",
+              "tx": "P5.1"
+            }
+          ],
+          [
+            {
+              "selector": 0,
+              "rx": "P0.2",
+              "tx": "P0.3"
+            },
+            {
+              "selector": 1,
+              "rx": "P5.2",
+              "tx": "P5.3"
+            }
+          ]
+        ],
+        "uart_timer_prescaler": true,
+        "i2c_count": 1,
+        "i2c_routes": [
+          {
+            "selector": 0,
+            "sda": "P1.4",
+            "scl": "P1.5"
+          },
+          {
+            "selector": 1,
+            "sda": "P2.4",
+            "scl": "P2.5"
+          },
+          {
+            "selector": 2,
+            "sda": "P7.6",
+            "scl": "P7.7"
+          },
+          {
+            "selector": 3,
+            "sda": "P3.3",
+            "scl": "P3.2"
+          }
+        ],
+        "spi_count": 1,
+        "spi_routes": [
+          {
+            "selector": 0,
+            "mosi": "P1.3",
+            "miso": "P1.4",
+            "sck": "P1.5",
+            "ss": "P5.4"
+          },
+          {
+            "selector": 1,
+            "mosi": "P2.3",
+            "miso": "P2.4",
+            "sck": "P2.5",
+            "ss": "P2.2"
+          },
+          {
+            "selector": 2,
+            "mosi": "P4.0",
+            "miso": "P4.1",
+            "sck": "P4.3",
+            "ss": "P5.4"
+          },
+          {
+            "selector": 3,
+            "mosi": "P3.4",
+            "miso": "P3.3",
+            "sck": "P3.2",
+            "ss": "P3.5"
+          }
+        ],
+        "spi_dividers": [
+          4,
+          8,
+          16,
+          0
+        ],
+        "source": "https://www.stcmicro.com/datasheet/STC8H-cn.pdf",
+        "uart_timer_prescaler_base": 65182,
+        "uart1_prescaler": false,
+        "spi_pin_swap": false,
+        "spi_divider_note": "Selector 3 is excluded: /32 versus /2 differs across silicon revisions; use the verified /4, /8, /16 selectors."
+      }
     },
     {
       "id": "stc8h1k08",
@@ -148,7 +277,77 @@
       ],
       "max_io": 17,
       "package_dependent": true,
-      "official_url": "https://www.stcmicro.com/cn/stc/stc8h1k08.html"
+      "official_url": "https://www.stcmicro.com/cn/stc/stc8h1k08.html",
+      "peripherals": {
+        "uart_count": 2,
+        "uart_routes": [
+          [
+            {
+              "selector": 0,
+              "rx": "P3.0",
+              "tx": "P3.1"
+            },
+            {
+              "selector": 1,
+              "rx": "P3.6",
+              "tx": "P3.7"
+            },
+            {
+              "selector": 2,
+              "rx": "P1.6",
+              "tx": "P1.7"
+            }
+          ],
+          [
+            {
+              "selector": 0,
+              "rx": "P1.0",
+              "tx": "P1.1"
+            }
+          ]
+        ],
+        "uart_timer_prescaler": true,
+        "i2c_count": 1,
+        "i2c_routes": [
+          {
+            "selector": 0,
+            "sda": "P1.4",
+            "scl": "P1.5"
+          },
+          {
+            "selector": 3,
+            "sda": "P3.3",
+            "scl": "P3.2"
+          }
+        ],
+        "spi_count": 1,
+        "spi_routes": [
+          {
+            "selector": 0,
+            "mosi": "P1.3",
+            "miso": "P1.4",
+            "sck": "P1.5",
+            "ss": "P1.2"
+          },
+          {
+            "selector": 3,
+            "mosi": "P3.4",
+            "miso": "P3.3",
+            "sck": "P3.2",
+            "ss": "P3.5"
+          }
+        ],
+        "spi_dividers": [
+          4,
+          8,
+          16,
+          32
+        ],
+        "source": "https://www.stcmicro.com/datasheet/STC8H-cn.pdf",
+        "uart_timer_prescaler_base": 65182,
+        "uart1_prescaler": false,
+        "spi_pin_swap": false
+      }
     },
     {
       "id": "stc8g1k08a",
@@ -212,7 +411,63 @@
       ],
       "max_io": 6,
       "package_dependent": false,
-      "official_url": "https://www.stcmicro.com/cn/stc/stc8g1k08a.html"
+      "official_url": "https://www.stcmicro.com/cn/stc/stc8g1k08a.html",
+      "peripherals": {
+        "uart_count": 1,
+        "uart_routes": [
+          [
+            {
+              "selector": 0,
+              "rx": "P3.0",
+              "tx": "P3.1"
+            },
+            {
+              "selector": 1,
+              "rx": "P3.2",
+              "tx": "P3.3"
+            },
+            {
+              "selector": 2,
+              "rx": "P5.4",
+              "tx": "P5.5"
+            }
+          ]
+        ],
+        "uart_timer_prescaler": true,
+        "i2c_count": 1,
+        "i2c_routes": [
+          {
+            "selector": 0,
+            "sda": "P3.3",
+            "scl": "P3.2"
+          },
+          {
+            "selector": 1,
+            "sda": "P5.5",
+            "scl": "P5.4"
+          }
+        ],
+        "spi_count": 1,
+        "spi_routes": [
+          {
+            "selector": 0,
+            "mosi": "P5.4",
+            "miso": "P3.3",
+            "sck": "P3.2",
+            "ss": "P5.5"
+          }
+        ],
+        "spi_dividers": [
+          4,
+          8,
+          16,
+          32
+        ],
+        "source": "https://www.stcmicro.com/datasheet/STC8G-en.pdf",
+        "uart_timer_prescaler_base": 65182,
+        "uart1_prescaler": false,
+        "spi_pin_swap": false
+      }
     },
     {
       "id": "stc8g1k08",
@@ -285,7 +540,77 @@
       ],
       "max_io": 18,
       "package_dependent": true,
-      "official_url": "https://www.stcmicro.com/cn/stc/stc8g1k08.html"
+      "official_url": "https://www.stcmicro.com/cn/stc/stc8g1k08.html",
+      "peripherals": {
+        "uart_count": 2,
+        "uart_routes": [
+          [
+            {
+              "selector": 0,
+              "rx": "P3.0",
+              "tx": "P3.1"
+            },
+            {
+              "selector": 1,
+              "rx": "P3.6",
+              "tx": "P3.7"
+            },
+            {
+              "selector": 2,
+              "rx": "P1.6",
+              "tx": "P1.7"
+            }
+          ],
+          [
+            {
+              "selector": 0,
+              "rx": "P1.0",
+              "tx": "P1.1"
+            }
+          ]
+        ],
+        "uart_timer_prescaler": true,
+        "i2c_count": 1,
+        "i2c_routes": [
+          {
+            "selector": 0,
+            "sda": "P1.4",
+            "scl": "P1.5"
+          },
+          {
+            "selector": 3,
+            "sda": "P3.3",
+            "scl": "P3.2"
+          }
+        ],
+        "spi_count": 1,
+        "spi_routes": [
+          {
+            "selector": 0,
+            "mosi": "P1.3",
+            "miso": "P1.4",
+            "sck": "P1.5",
+            "ss": "P1.2"
+          },
+          {
+            "selector": 3,
+            "mosi": "P3.4",
+            "miso": "P3.3",
+            "sck": "P3.2",
+            "ss": "P3.5"
+          }
+        ],
+        "spi_dividers": [
+          4,
+          8,
+          16,
+          32
+        ],
+        "source": "https://www.stcmicro.com/datasheet/STC8G-en.pdf",
+        "uart_timer_prescaler_base": 65182,
+        "uart1_prescaler": false,
+        "spi_pin_swap": false
+      }
     },
     {
       "id": "stc8g2k64s4",
@@ -357,7 +682,130 @@
       ],
       "max_io": 45,
       "package_dependent": true,
-      "official_url": "https://www.stcmicro.com/cn/stc/stc8g2k64s4.html"
+      "official_url": "https://www.stcmicro.com/cn/stc/stc8g2k64s4.html",
+      "peripherals": {
+        "uart_count": 4,
+        "uart_routes": [
+          [
+            {
+              "selector": 0,
+              "rx": "P3.0",
+              "tx": "P3.1"
+            },
+            {
+              "selector": 1,
+              "rx": "P3.6",
+              "tx": "P3.7"
+            },
+            {
+              "selector": 2,
+              "rx": "P1.6",
+              "tx": "P1.7"
+            },
+            {
+              "selector": 3,
+              "rx": "P4.3",
+              "tx": "P4.4"
+            }
+          ],
+          [
+            {
+              "selector": 0,
+              "rx": "P1.0",
+              "tx": "P1.1"
+            },
+            {
+              "selector": 1,
+              "rx": "P4.6",
+              "tx": "P4.7"
+            }
+          ],
+          [
+            {
+              "selector": 0,
+              "rx": "P0.0",
+              "tx": "P0.1"
+            },
+            {
+              "selector": 1,
+              "rx": "P5.0",
+              "tx": "P5.1"
+            }
+          ],
+          [
+            {
+              "selector": 0,
+              "rx": "P0.2",
+              "tx": "P0.3"
+            },
+            {
+              "selector": 1,
+              "rx": "P5.2",
+              "tx": "P5.3"
+            }
+          ]
+        ],
+        "uart_timer_prescaler": true,
+        "i2c_count": 1,
+        "i2c_routes": [
+          {
+            "selector": 0,
+            "sda": "P1.4",
+            "scl": "P1.5"
+          },
+          {
+            "selector": 1,
+            "sda": "P2.4",
+            "scl": "P2.5"
+          },
+          {
+            "selector": 3,
+            "sda": "P3.3",
+            "scl": "P3.2"
+          }
+        ],
+        "spi_count": 1,
+        "spi_routes": [
+          {
+            "selector": 0,
+            "mosi": "P1.3",
+            "miso": "P1.4",
+            "sck": "P1.5",
+            "ss": "P1.2"
+          },
+          {
+            "selector": 1,
+            "mosi": "P2.3",
+            "miso": "P2.4",
+            "sck": "P2.5",
+            "ss": "P2.2"
+          },
+          {
+            "selector": 2,
+            "mosi": "P4.0",
+            "miso": "P4.1",
+            "sck": "P4.3",
+            "ss": "P5.4"
+          },
+          {
+            "selector": 3,
+            "mosi": "P3.4",
+            "miso": "P3.3",
+            "sck": "P3.2",
+            "ss": "P3.5"
+          }
+        ],
+        "spi_dividers": [
+          4,
+          8,
+          16,
+          32
+        ],
+        "source": "https://www.stcmicro.com/datasheet/STC8G-en.pdf",
+        "uart_timer_prescaler_base": 65182,
+        "uart1_prescaler": false,
+        "spi_pin_swap": false
+      }
     },
     {
       "id": "stc8c2k64s4",
@@ -408,7 +856,113 @@
       ],
       "max_io": 42,
       "package_dependent": true,
-      "official_url": "https://www.stcmicro.com/cn/stc/stc8c2k64s4.html"
+      "official_url": "https://www.stcmicro.com/cn/stc/stc8c2k64s4.html",
+      "peripherals": {
+        "uart_count": 4,
+        "uart_routes": [
+          [
+            {
+              "selector": 0,
+              "rx": "P3.0",
+              "tx": "P3.1"
+            },
+            {
+              "selector": 1,
+              "rx": "P3.6",
+              "tx": "P3.7"
+            },
+            {
+              "selector": 2,
+              "rx": "P1.6",
+              "tx": "P1.7"
+            },
+            {
+              "selector": 3,
+              "rx": "P4.3",
+              "tx": "P4.4"
+            }
+          ],
+          [
+            {
+              "selector": 0,
+              "rx": "P1.0",
+              "tx": "P1.1"
+            },
+            {
+              "selector": 1,
+              "rx": "P4.0",
+              "tx": "P4.2"
+            }
+          ],
+          [
+            {
+              "selector": 0,
+              "rx": "P0.0",
+              "tx": "P0.1"
+            }
+          ],
+          [
+            {
+              "selector": 0,
+              "rx": "P0.2",
+              "tx": "P0.3"
+            }
+          ]
+        ],
+        "uart_timer_prescaler": true,
+        "i2c_count": 1,
+        "i2c_routes": [
+          {
+            "selector": 0,
+            "sda": "P1.4",
+            "scl": "P1.5"
+          },
+          {
+            "selector": 1,
+            "sda": "P2.4",
+            "scl": "P2.5"
+          },
+          {
+            "selector": 3,
+            "sda": "P3.3",
+            "scl": "P3.2"
+          }
+        ],
+        "spi_count": 1,
+        "spi_routes": [
+          {
+            "selector": 0,
+            "mosi": "P1.3",
+            "miso": "P1.4",
+            "sck": "P1.5",
+            "ss": "P1.2"
+          },
+          {
+            "selector": 1,
+            "mosi": "P2.3",
+            "miso": "P2.4",
+            "sck": "P2.5",
+            "ss": "P2.2"
+          },
+          {
+            "selector": 3,
+            "mosi": "P3.4",
+            "miso": "P3.3",
+            "sck": "P3.2",
+            "ss": "P3.5"
+          }
+        ],
+        "spi_dividers": [
+          4,
+          8,
+          16,
+          32
+        ],
+        "source": "https://www.stcmicro.com/datasheet/STC8C-cn.pdf",
+        "uart_timer_prescaler_base": 65182,
+        "uart1_prescaler": false,
+        "spi_pin_swap": false
+      }
     },
     {
       "id": "stc8h1k28",
@@ -476,7 +1030,89 @@
       ],
       "max_io": 29,
       "package_dependent": true,
-      "official_url": "https://www.stcmicro.com/cn/stc/stc8h1k28.html"
+      "official_url": "https://www.stcmicro.com/cn/stc/stc8h1k28.html",
+      "peripherals": {
+        "uart_count": 2,
+        "uart_routes": [
+          [
+            {
+              "selector": 0,
+              "rx": "P3.0",
+              "tx": "P3.1"
+            },
+            {
+              "selector": 1,
+              "rx": "P3.6",
+              "tx": "P3.7"
+            },
+            {
+              "selector": 2,
+              "rx": "P1.6",
+              "tx": "P1.7"
+            }
+          ],
+          [
+            {
+              "selector": 0,
+              "rx": "P1.0",
+              "tx": "P1.1"
+            }
+          ]
+        ],
+        "uart_timer_prescaler": true,
+        "i2c_count": 1,
+        "i2c_routes": [
+          {
+            "selector": 0,
+            "sda": "P1.4",
+            "scl": "P1.5"
+          },
+          {
+            "selector": 1,
+            "sda": "P2.4",
+            "scl": "P2.5"
+          },
+          {
+            "selector": 3,
+            "sda": "P3.3",
+            "scl": "P3.2"
+          }
+        ],
+        "spi_count": 1,
+        "spi_routes": [
+          {
+            "selector": 0,
+            "mosi": "P1.3",
+            "miso": "P1.4",
+            "sck": "P1.5",
+            "ss": "P1.2"
+          },
+          {
+            "selector": 1,
+            "mosi": "P2.3",
+            "miso": "P2.4",
+            "sck": "P2.5",
+            "ss": "P2.2"
+          },
+          {
+            "selector": 3,
+            "mosi": "P3.4",
+            "miso": "P3.3",
+            "sck": "P3.2",
+            "ss": "P3.5"
+          }
+        ],
+        "spi_dividers": [
+          4,
+          8,
+          16,
+          32
+        ],
+        "source": "https://www.stcmicro.com/datasheet/STC8H-cn.pdf",
+        "uart_timer_prescaler_base": 65182,
+        "uart1_prescaler": false,
+        "spi_pin_swap": false
+      }
     },
     {
       "id": "stc8h3k64s4",
@@ -545,7 +1181,119 @@
       "max_io": 43,
       "package_dependent": true,
       "data_quality_note": "The official page's final feature sentence says S2, while its title, feature set and S4 documentation identify this model as S4.",
-      "official_url": "https://www.stcmicro.com/cn/stc/stc8h3k64s4.html"
+      "official_url": "https://www.stcmicro.com/cn/stc/stc8h3k64s4.html",
+      "peripherals": {
+        "uart_count": 4,
+        "uart_routes": [
+          [
+            {
+              "selector": 0,
+              "rx": "P3.0",
+              "tx": "P3.1"
+            },
+            {
+              "selector": 1,
+              "rx": "P3.6",
+              "tx": "P3.7"
+            },
+            {
+              "selector": 2,
+              "rx": "P1.6",
+              "tx": "P1.7"
+            },
+            {
+              "selector": 3,
+              "rx": "P4.3",
+              "tx": "P4.4"
+            }
+          ],
+          [
+            {
+              "selector": 0,
+              "rx": "P1.0",
+              "tx": "P1.1"
+            },
+            {
+              "selector": 1,
+              "rx": "P4.6",
+              "tx": "P4.7"
+            }
+          ],
+          [
+            {
+              "selector": 0,
+              "rx": "P0.0",
+              "tx": "P0.1"
+            },
+            {
+              "selector": 1,
+              "rx": "P5.0",
+              "tx": "P5.1"
+            }
+          ],
+          [
+            {
+              "selector": 0,
+              "rx": "P0.2",
+              "tx": "P0.3"
+            },
+            {
+              "selector": 1,
+              "rx": "P5.2",
+              "tx": "P5.3"
+            }
+          ]
+        ],
+        "uart_timer_prescaler": true,
+        "i2c_count": 1,
+        "i2c_routes": [
+          {
+            "selector": 1,
+            "sda": "P2.4",
+            "scl": "P2.5"
+          },
+          {
+            "selector": 3,
+            "sda": "P3.3",
+            "scl": "P3.2"
+          }
+        ],
+        "spi_count": 1,
+        "spi_routes": [
+          {
+            "selector": 1,
+            "mosi": "P2.3",
+            "miso": "P2.4",
+            "sck": "P2.5",
+            "ss": "P2.2"
+          },
+          {
+            "selector": 2,
+            "mosi": "P4.0",
+            "miso": "P4.1",
+            "sck": "P4.3",
+            "ss": "P5.4"
+          },
+          {
+            "selector": 3,
+            "mosi": "P3.4",
+            "miso": "P3.3",
+            "sck": "P3.2",
+            "ss": "P3.5"
+          }
+        ],
+        "spi_dividers": [
+          4,
+          8,
+          16,
+          0
+        ],
+        "source": "https://www.stcmicro.com/datasheet/STC8H-cn.pdf",
+        "uart_timer_prescaler_base": 65182,
+        "uart1_prescaler": false,
+        "spi_pin_swap": false,
+        "spi_divider_note": "Selector 3 is excluded: /32 versus /2 differs across silicon revisions; use the verified /4, /8, /16 selectors."
+      }
     },
     {
       "id": "ai8h2k12u",
@@ -620,7 +1368,78 @@
       "pin_selector": "pswx1_bit0_clear_for_p5_4",
       "package_dependent": true,
       "data_quality_note": "P1.2 and P5.4 share one package pin; this static variant keeps P5.4 and excludes the duplicate P1.2 alias. The official IRC blind range from 32 to 37 MHz is omitted from the clock menu.",
-      "official_url": "https://www.stcmicro.com/cn/ai/ai8h2k12u.html"
+      "official_url": "https://www.stcmicro.com/cn/ai/ai8h2k12u.html",
+      "peripherals": {
+        "uart_count": 2,
+        "uart_routes": [
+          [
+            {
+              "selector": 0,
+              "rx": "P3.0",
+              "tx": "P3.1"
+            },
+            {
+              "selector": 1,
+              "rx": "P3.6",
+              "tx": "P3.7"
+            },
+            {
+              "selector": 2,
+              "rx": "P1.6",
+              "tx": "P1.7"
+            }
+          ],
+          [
+            {
+              "selector": 0,
+              "rx": "P1.0",
+              "tx": "P1.1"
+            }
+          ]
+        ],
+        "uart_timer_prescaler": true,
+        "i2c_count": 1,
+        "i2c_routes": [
+          {
+            "selector": 0,
+            "sda": "P1.4",
+            "scl": "P1.5"
+          },
+          {
+            "selector": 3,
+            "sda": "P3.3",
+            "scl": "P3.2"
+          }
+        ],
+        "spi_count": 1,
+        "spi_routes": [
+          {
+            "selector": 0,
+            "mosi": "P1.3",
+            "miso": "P1.4",
+            "sck": "P1.5",
+            "ss": "P5.4"
+          },
+          {
+            "selector": 3,
+            "mosi": "P3.4",
+            "miso": "P3.3",
+            "sck": "P3.2",
+            "ss": "P3.5"
+          }
+        ],
+        "spi_dividers": [
+          4,
+          8,
+          16,
+          0
+        ],
+        "source": "https://www.stcmicro.com/datasheet/Ai8-cn.pdf",
+        "uart_timer_prescaler_base": 65184,
+        "uart1_prescaler": true,
+        "spi_pin_swap": true,
+        "spi_divider_note": "Selector 3 is excluded: /32 versus /2 differs across silicon revisions; use the verified /4, /8, /16 selectors."
+      }
     },
     {
       "id": "ai8h2k32u",
@@ -694,7 +1513,90 @@
       "pin_selector": "pswx1_bit0_clear_for_p5_4",
       "package_dependent": true,
       "data_quality_note": "P1.2 and P5.4 share one package pin; this static variant keeps P5.4 and excludes the duplicate P1.2 alias. The official IRC blind range from 32 to 37 MHz is omitted from the clock menu.",
-      "official_url": "https://www.stcmicro.com/cn/ai/ai8h2k12u.html"
+      "official_url": "https://www.stcmicro.com/cn/ai/ai8h2k12u.html",
+      "peripherals": {
+        "uart_count": 2,
+        "uart_routes": [
+          [
+            {
+              "selector": 0,
+              "rx": "P3.0",
+              "tx": "P3.1"
+            },
+            {
+              "selector": 1,
+              "rx": "P3.6",
+              "tx": "P3.7"
+            },
+            {
+              "selector": 2,
+              "rx": "P1.6",
+              "tx": "P1.7"
+            }
+          ],
+          [
+            {
+              "selector": 0,
+              "rx": "P1.0",
+              "tx": "P1.1"
+            }
+          ]
+        ],
+        "uart_timer_prescaler": true,
+        "i2c_count": 1,
+        "i2c_routes": [
+          {
+            "selector": 0,
+            "sda": "P1.4",
+            "scl": "P1.5"
+          },
+          {
+            "selector": 1,
+            "sda": "P2.4",
+            "scl": "P2.5"
+          },
+          {
+            "selector": 3,
+            "sda": "P3.3",
+            "scl": "P3.2"
+          }
+        ],
+        "spi_count": 1,
+        "spi_routes": [
+          {
+            "selector": 0,
+            "mosi": "P1.3",
+            "miso": "P1.4",
+            "sck": "P1.5",
+            "ss": "P5.4"
+          },
+          {
+            "selector": 1,
+            "mosi": "P2.3",
+            "miso": "P2.4",
+            "sck": "P2.5",
+            "ss": "P2.2"
+          },
+          {
+            "selector": 3,
+            "mosi": "P3.4",
+            "miso": "P3.3",
+            "sck": "P3.2",
+            "ss": "P3.5"
+          }
+        ],
+        "spi_dividers": [
+          4,
+          8,
+          16,
+          0
+        ],
+        "source": "https://www.stcmicro.com/datasheet/Ai8-cn.pdf",
+        "uart_timer_prescaler_base": 65184,
+        "uart1_prescaler": true,
+        "spi_pin_swap": true,
+        "spi_divider_note": "Selector 3 is excluded: /32 versus /2 differs across silicon revisions; use the verified /4, /8, /16 selectors."
+      }
     },
     {
       "id": "stc15f2k60s2",
@@ -760,7 +1662,78 @@
       "package_dependent": true,
       "official_url": "https://www.stcmicro.com/cn/stc/stc15f2k60s2.html",
       "cpp_core_profile": "stc-cxx11-12mhz-experimental",
-      "cpp_heap_bytes": 512
+      "cpp_heap_bytes": 512,
+      "peripherals": {
+        "uart_count": 2,
+        "uart_routes": [
+          [
+            {
+              "selector": 0,
+              "rx": "P3.0",
+              "tx": "P3.1"
+            },
+            {
+              "selector": 1,
+              "rx": "P3.6",
+              "tx": "P3.7"
+            },
+            {
+              "selector": 2,
+              "rx": "P1.6",
+              "tx": "P1.7"
+            }
+          ],
+          [
+            {
+              "selector": 0,
+              "rx": "P1.0",
+              "tx": "P1.1"
+            },
+            {
+              "selector": 1,
+              "rx": "P4.6",
+              "tx": "P4.7"
+            }
+          ]
+        ],
+        "uart_timer_prescaler": false,
+        "i2c_count": 0,
+        "i2c_routes": [],
+        "spi_count": 1,
+        "spi_routes": [
+          {
+            "selector": 0,
+            "mosi": "P1.3",
+            "miso": "P1.4",
+            "sck": "P1.5",
+            "ss": "P1.2"
+          },
+          {
+            "selector": 1,
+            "mosi": "P2.3",
+            "miso": "P2.2",
+            "sck": "P2.1",
+            "ss": "P2.4"
+          },
+          {
+            "selector": 2,
+            "mosi": "P4.0",
+            "miso": "P4.1",
+            "sck": "P4.3",
+            "ss": "P5.4"
+          }
+        ],
+        "spi_dividers": [
+          4,
+          16,
+          64,
+          128
+        ],
+        "source": "https://www.stcmicro.com/datasheet/STC15F2K60S2-en.pdf",
+        "uart_timer_prescaler_base": 65182,
+        "uart1_prescaler": false,
+        "spi_pin_swap": false
+      }
     },
     {
       "id": "stc12c5a60s2",
@@ -825,7 +1798,54 @@
       "package_dependent": true,
       "official_url": "https://www.stcmicro.com/cn/stc/stc12c5a60s2.html",
       "cpp_core_profile": "stc-cxx11-12mhz-experimental",
-      "cpp_heap_bytes": 512
+      "cpp_heap_bytes": 512,
+      "peripherals": {
+        "uart_count": 2,
+        "uart_routes": [
+          [
+            {
+              "selector": 0,
+              "rx": "P3.0",
+              "tx": "P3.1"
+            }
+          ],
+          [
+            {
+              "selector": 0,
+              "rx": "P1.2",
+              "tx": "P1.3"
+            },
+            {
+              "selector": 1,
+              "rx": "P4.2",
+              "tx": "P4.3"
+            }
+          ]
+        ],
+        "uart_timer_prescaler": false,
+        "i2c_count": 0,
+        "i2c_routes": [],
+        "spi_count": 1,
+        "spi_routes": [
+          {
+            "selector": 0,
+            "mosi": "P1.5",
+            "miso": "P1.6",
+            "sck": "P1.7",
+            "ss": "P1.4"
+          }
+        ],
+        "spi_dividers": [
+          4,
+          16,
+          64,
+          128
+        ],
+        "source": "https://www.stcmicro.com/datasheet/STC12C5A60S2-en.pdf",
+        "uart_timer_prescaler_base": 65182,
+        "uart1_prescaler": false,
+        "spi_pin_swap": false
+      }
     },
     {
       "id": "stc89c58rd_plus",
@@ -875,7 +1895,34 @@
       "package_dependent": true,
       "official_url": "https://www.stcmicro.com/cn/stc/stc89c51rc.html",
       "cpp_core_profile": "stc-cxx11-12mhz-experimental",
-      "cpp_heap_bytes": 512
+      "cpp_heap_bytes": 512,
+      "peripherals": {
+        "uart_count": 1,
+        "uart_routes": [
+          [
+            {
+              "selector": 0,
+              "rx": "P3.0",
+              "tx": "P3.1"
+            }
+          ]
+        ],
+        "uart_timer_prescaler": false,
+        "i2c_count": 0,
+        "i2c_routes": [],
+        "spi_count": 0,
+        "spi_routes": [],
+        "spi_dividers": [
+          4,
+          8,
+          16,
+          32
+        ],
+        "source": "https://www.stcmicro.com/cn/stc/stc89c51rc.html",
+        "uart_timer_prescaler_base": 65182,
+        "uart1_prescaler": false,
+        "spi_pin_swap": false
+      }
     },
     {
       "id": "stc15w4k32s4",
@@ -941,7 +1988,107 @@
       "package_dependent": true,
       "official_url": "https://www.stcmicro.com/cn/stc/stc15w4k32s4.html",
       "cpp_core_profile": "stc-cxx11-12mhz-experimental",
-      "cpp_heap_bytes": 512
+      "cpp_heap_bytes": 512,
+      "peripherals": {
+        "uart_count": 4,
+        "uart_routes": [
+          [
+            {
+              "selector": 0,
+              "rx": "P3.0",
+              "tx": "P3.1"
+            },
+            {
+              "selector": 1,
+              "rx": "P3.6",
+              "tx": "P3.7"
+            },
+            {
+              "selector": 2,
+              "rx": "P1.6",
+              "tx": "P1.7"
+            },
+            {
+              "selector": 3,
+              "rx": "P4.3",
+              "tx": "P4.4"
+            }
+          ],
+          [
+            {
+              "selector": 0,
+              "rx": "P1.0",
+              "tx": "P1.1"
+            },
+            {
+              "selector": 1,
+              "rx": "P4.6",
+              "tx": "P4.7"
+            }
+          ],
+          [
+            {
+              "selector": 0,
+              "rx": "P0.0",
+              "tx": "P0.1"
+            },
+            {
+              "selector": 1,
+              "rx": "P5.0",
+              "tx": "P5.1"
+            }
+          ],
+          [
+            {
+              "selector": 0,
+              "rx": "P0.2",
+              "tx": "P0.3"
+            },
+            {
+              "selector": 1,
+              "rx": "P5.2",
+              "tx": "P5.3"
+            }
+          ]
+        ],
+        "uart_timer_prescaler": false,
+        "i2c_count": 0,
+        "i2c_routes": [],
+        "spi_count": 1,
+        "spi_routes": [
+          {
+            "selector": 0,
+            "mosi": "P1.3",
+            "miso": "P1.4",
+            "sck": "P1.5",
+            "ss": "P1.2"
+          },
+          {
+            "selector": 1,
+            "mosi": "P2.3",
+            "miso": "P2.2",
+            "sck": "P2.1",
+            "ss": "P2.4"
+          },
+          {
+            "selector": 2,
+            "mosi": "P4.0",
+            "miso": "P4.1",
+            "sck": "P4.3",
+            "ss": "P5.4"
+          }
+        ],
+        "spi_dividers": [
+          4,
+          8,
+          32,
+          64
+        ],
+        "source": "https://www.stcmicro.com/datasheet/STC15W4K32S4-en.pdf",
+        "uart_timer_prescaler_base": 65182,
+        "uart1_prescaler": false,
+        "spi_pin_swap": false
+      }
     }
   ]
 }

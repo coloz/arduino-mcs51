@@ -16,6 +16,8 @@
  * already available and does not wait for future input.
  */
 void Serial_begin(unsigned long baud);
+bool Serial_beginChecked(unsigned long baud);
+bool Serial_setPinsChecked(uint8_t rx, uint8_t tx);
 void Serial_end(void);
 int Serial_available(void);
 int Serial_availableForWrite(void);

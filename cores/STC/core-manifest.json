@@ -46,6 +46,8 @@
   },
   "sources": [
     "HardwareSerial.cpp",
+    "HardwareSerial1.cpp",
+    "HardwareSerialExtra.cpp",
     "Print.cpp",
     "Stream.cpp",
     "WString.cpp",

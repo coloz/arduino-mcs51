@@ -42,6 +42,75 @@
     "separate_pullup": false
   },
   "peripherals": {
+    "uart_count": 2,
+    "uart_routes": [
+      [
+        {
+          "selector": 0,
+          "rx": "P3.0",
+          "tx": "P3.1"
+        },
+        {
+          "selector": 1,
+          "rx": "P3.6",
+          "tx": "P3.7"
+        },
+        {
+          "selector": 2,
+          "rx": "P1.6",
+          "tx": "P1.7"
+        }
+      ],
+      [
+        {
+          "selector": 0,
+          "rx": "P1.0",
+          "tx": "P1.1"
+        },
+        {
+          "selector": 1,
+          "rx": "P4.6",
+          "tx": "P4.7"
+        }
+      ]
+    ],
+    "uart_timer_prescaler": false,
+    "i2c_count": 0,
+    "i2c_routes": [],
+    "spi_count": 1,
+    "spi_routes": [
+      {
+        "selector": 0,
+        "mosi": "P1.3",
+        "miso": "P1.4",
+        "sck": "P1.5",
+        "ss": "P1.2"
+      },
+      {
+        "selector": 1,
+        "mosi": "P2.3",
+        "miso": "P2.2",
+        "sck": "P2.1",
+        "ss": "P2.4"
+      },
+      {
+        "selector": 2,
+        "mosi": "P4.0",
+        "miso": "P4.1",
+        "sck": "P4.3",
+        "ss": "P5.4"
+      }
+    ],
+    "spi_dividers": [
+      4,
+      16,
+      64,
+      128
+    ],
+    "source": "https://www.stcmicro.com/datasheet/STC15F2K60S2-en.pdf",
+    "uart_timer_prescaler_base": 65182,
+    "uart1_prescaler": false,
+    "spi_pin_swap": false,
     "uart1": true,
     "uart1_buffered_rx": true,
     "timer0_clock_divider": null,

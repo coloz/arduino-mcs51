@@ -16,7 +16,7 @@
 | STC12 | `stc12c5a60s2` |
 | STC89 | `stc89c58rd_plus`（STC89C58RD+） |
 
-仅上述型号列入本版支持范围。同系列其他容量、封装不能直接视为同一板型。存储容量、端口掩码和 ADC 通道以 [devices.json](tools/variants/devices.json) 为准。引脚编码为 `(port << 4) | bit`，例如 `P3_2`；未假定任何板载 LED，Blink 需外接 LED 与限流电阻。
+仅上述型号列入本版支持范围。同系列其他容量、封装不能直接视为同一板型。UART/IIC/SPI 数量与驱动限制见 [硬件接口说明](HARDWARE_INTERFACES.md)。存储容量、端口掩码和 ADC 通道以 [devices.json](tools/variants/devices.json) 为准。引脚编码为 `(port << 4) | bit`，例如 `P3_2`；未假定任何板载 LED，Blink 需外接 LED 与限流电阻。
 
 ## 在当前工作区编译
 
@@ -54,6 +54,8 @@ runtime.tools.stc-cli.path=D:/Git/stc51/stc-cli/target/release
 
 本版 C++ 配置固定为 **12 MHz / large / stack-auto**；ISP 中的实际时钟必须设为 12 MHz。STC89 配置按 12T 定时器模式处理。时钟菜单不会修改芯片的 ISP 设置。
 
+当前 14 个 variant 均有 `stc-cli` UART 烧录实现。STC89C58RD+ 和 STC12C5A60S2 的 IDE 上传速率为 19200 baud，其余为 115200；这是 ISP 传输速度，与 sketch 的 `Serial.begin()` 无关。逐型号 ID、容量、实验性开关及验证范围见 [烧录支持核查](UPLOAD_SUPPORT.md)。请重新构建配套 `stc-cli`，使用包含旧系列 15 秒擦除等待修复的可执行文件。
+
 所有型号通过 UART ISP 上传；默认 RX=P3.0、TX=P3.1。IDE 选择串口后上传，按烧录器提示重新上电。Ai8 无可靠型号 ID 的路径使用所选型号，需核对芯片丝印。也可离线检查及手动上传：
 
 ```powershell
@@ -73,4 +75,10 @@ node tools/variants/generate.mjs --check
 node scripts/build-native-driver.mjs
 ```
 
-上游文件修改后，审核变更并运行 `node scripts/sync-core-sdk.mjs` 更新副本。平台支持范围见 [COMPATIBILITY.md](COMPATIBILITY.md)，发布验证状态见 [VALIDATION.md](VALIDATION.md)。
+上游文件修改后，审核变更并运行 `node scripts/sync-core-sdk.mjs` 更新副本。平台支持范围见 [COMPATIBILITY.md](COMPATIBILITY.md)，源码验证状态见 [VALIDATION.md](VALIDATION.md)。
+
+## 批量编译测试
+
+`scripts/test-compile.mjs` 使用 Arduino CLI 和 aily-builder 测试全部例程及常见 Arduino 应用，按板型保存编译日志、容量统计与 HEX 校验结果。用法、缓存和断点恢复选项见 [编译回归说明](tests/compile/README.md)。
+
+硬件接口的寄存器行为回归：`node tests/peripherals/run.mjs`。本轮完整结果见 [PERIPHERAL_RESULTS.md](tests/compile/PERIPHERAL_RESULTS.md)。

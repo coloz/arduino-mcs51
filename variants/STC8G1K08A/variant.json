@@ -42,6 +42,60 @@
     "separate_pullup": false
   },
   "peripherals": {
+    "uart_count": 1,
+    "uart_routes": [
+      [
+        {
+          "selector": 0,
+          "rx": "P3.0",
+          "tx": "P3.1"
+        },
+        {
+          "selector": 1,
+          "rx": "P3.2",
+          "tx": "P3.3"
+        },
+        {
+          "selector": 2,
+          "rx": "P5.4",
+          "tx": "P5.5"
+        }
+      ]
+    ],
+    "uart_timer_prescaler": true,
+    "i2c_count": 1,
+    "i2c_routes": [
+      {
+        "selector": 0,
+        "sda": "P3.3",
+        "scl": "P3.2"
+      },
+      {
+        "selector": 1,
+        "sda": "P5.5",
+        "scl": "P5.4"
+      }
+    ],
+    "spi_count": 1,
+    "spi_routes": [
+      {
+        "selector": 0,
+        "mosi": "P5.4",
+        "miso": "P3.3",
+        "sck": "P3.2",
+        "ss": "P5.5"
+      }
+    ],
+    "spi_dividers": [
+      4,
+      8,
+      16,
+      32
+    ],
+    "source": "https://www.stcmicro.com/datasheet/STC8G-en.pdf",
+    "uart_timer_prescaler_base": 65182,
+    "uart1_prescaler": false,
+    "spi_pin_swap": false,
     "uart1": true,
     "uart1_buffered_rx": true,
     "timer0_clock_divider": null,

@@ -17,22 +17,25 @@ static void stc_interrupt_unlock(uint8_t enabled)
     }
 }
 
-void attachInterrupt(uint8_t interrupt_number, void (*callback)(void),
-                     int mode) STC_REENTRANT
+uint8_t interruptModeSupported(uint8_t interrupt_number, int mode) STC_REENTRANT
+{
+    if (interrupt_number > 1u || !digitalPinIsValid(interrupt_number == 0u ? P3_2 : P3_3)) return 0u;
+    if (mode == FALLING) return 1u;
+#if STC_CORE_INT01_MODE == 2
+    return mode == CHANGE;
+#else
+    return mode == LOW;
+#endif
+}
+void attachInterrupt(uint8_t interrupt_number, void (*callback)(void), int mode) STC_REENTRANT
+{
+    (void)attachInterruptChecked(interrupt_number, callback, mode);
+}
+uint8_t attachInterruptChecked(uint8_t interrupt_number, void (*callback)(void), int mode) STC_REENTRANT
 {
     uint8_t interrupt_state;
-
-    if ((interrupt_number > 1u) || (callback == 0)) {
-        return;
-    }
-
-    /* The common INT0/INT1 hardware supports low-level and falling-edge
-     * triggering.  CHANGE/RISING require family-specific GPIO interrupts and
-     * are deliberately rejected instead of silently using the wrong edge. */
-    if ((mode != LOW) && (mode != FALLING)) {
-        return;
-    }
-
+    if (interrupt_number > 1u || !callback || !digitalPinIsValid(interrupt_number == 0u ? P3_2 : P3_3)) return STC_INTERRUPT_INVALID;
+    if (!interruptModeSupported(interrupt_number, mode)) return STC_INTERRUPT_UNSUPPORTED_MODE;
     interrupt_state = stc_interrupt_lock();
     stc_external_callbacks[interrupt_number] = callback;
 
@@ -55,6 +58,7 @@ void attachInterrupt(uint8_t interrupt_number, void (*callback)(void),
     }
 
     stc_interrupt_unlock(interrupt_state);
+    return STC_INTERRUPT_OK;
 }
 
 void detachInterrupt(uint8_t interrupt_number)

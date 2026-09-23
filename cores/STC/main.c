@@ -25,6 +25,17 @@ void stc_external1_isr(void) __interrupt (2);
 void stc_uart1_isr(void) __interrupt (4);
 #endif
 
+#if STC_CORE_UART_COUNT >= 2
+void stc_uart2_isr(void) __interrupt (8);
+#endif
+#if STC_CORE_UART_COUNT >= 4
+void stc_uart3_isr(void) __interrupt (17);
+void stc_uart4_isr(void) __interrupt (18);
+#endif
+#if STC_CORE_I2C_COUNT > 0
+void stc_wire_slave_isr(void) __interrupt (24);
+#endif
+
 int main(void)
 {
 #if defined(STCXX_CPP_CORE) && STCXX_CPP_CORE
