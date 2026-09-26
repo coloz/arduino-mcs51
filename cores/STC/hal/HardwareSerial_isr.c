@@ -4,7 +4,7 @@
 #include "stc_sfr.h"
 
 #if STC_CORE_HAS_UART1
-volatile uint8_t stc_uart1_started;
+STC_SERIAL_HOT volatile uint8_t stc_uart1_started;
 
 # if STC_CORE_SERIAL_BUFFERED_RX
 #  if defined(STC_XDATA_BYTES) && (STC_XDATA_BYTES > 0)
@@ -12,10 +12,10 @@ __xdata uint8_t stc_uart1_rx_buffer[SERIAL_RX_BUFFER_SIZE];
 #  else
 uint8_t stc_uart1_rx_buffer[SERIAL_RX_BUFFER_SIZE];
 #  endif
-volatile uint8_t stc_uart1_rx_head;
-volatile uint8_t stc_uart1_rx_tail;
-volatile uint8_t stc_uart1_rx_overflow;
-volatile uint8_t stc_uart1_tx_complete = 1u;
+STC_SERIAL_HOT volatile uint8_t stc_uart1_rx_head;
+STC_SERIAL_HOT volatile uint8_t stc_uart1_rx_tail;
+STC_SERIAL_HOT volatile uint8_t stc_uart1_rx_overflow;
+STC_SERIAL_HOT volatile uint8_t stc_uart1_tx_complete = 1u;
 
 void stc_uart1_isr(void) __interrupt (4)
 {

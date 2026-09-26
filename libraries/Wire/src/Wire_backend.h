@@ -18,6 +18,13 @@
 # define STC_WIRE_HOT
 #endif
 
+#ifndef STC_WIRE_FAST_DEFAULT
+# define STC_WIRE_FAST_DEFAULT 1
+#endif
+#if STC_WIRE_FAST_DEFAULT != 0 && STC_WIRE_FAST_DEFAULT != 1
+# error "STC_WIRE_FAST_DEFAULT must be 0 or 1"
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif

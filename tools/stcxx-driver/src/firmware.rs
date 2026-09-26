@@ -1,7 +1,9 @@
 //! An ELF32 load image for recipe runners with a fixed .elf link target.
-//! It contains the actual MCS251 flash bytes, not a sentinel or renamed HEX.
+//! It contains the actual MCS51 flash bytes, not a sentinel or renamed HEX.
 use anyhow::{Context, Result, bail, ensure};
 use std::collections::BTreeMap;
+
+const FLASH_SIZE: u32 = 0x10000;
 
 fn u16_at(b: &[u8], i: usize) -> Result<u16> {
     Ok(u16::from_le_bytes(
@@ -31,7 +33,7 @@ pub fn from_hex(hex: &[u8]) -> Result<Vec<u8>> {
     {
         let line = line.trim();
         ensure!(
-            !eof && line.starts_with(':') && line.len() % 2 == 1,
+            !eof && line.is_ascii() && line.starts_with(':') && line.len() % 2 == 1,
             "invalid HEX record"
         );
         let r = (1..line.len())
@@ -55,7 +57,7 @@ pub fn from_hex(hex: &[u8]) -> Result<Vec<u8>> {
                         .checked_add(addr)
                         .and_then(|a| a.checked_add(i as u32))
                         .context("HEX address overflow")?;
-                    ensure!(a <= 0xffffff, "flash address exceeds MCS251 address space");
+                    ensure!(a < FLASH_SIZE, "flash address exceeds MCS51 address space");
                     if let Some(previous) = image.insert(a, *byte) {
                         ensure!(previous == *byte, "conflicting HEX data");
                     }
@@ -72,12 +74,17 @@ pub fn from_hex(hex: &[u8]) -> Result<Vec<u8>> {
             }
             3 | 5 => {
                 ensure!(data.len() == 4 && addr == 0, "invalid HEX entry point");
-                entry = Some(if r[3] == 5 {
+                let address = if r[3] == 5 {
                     u32::from_be_bytes(data.try_into()?)
                 } else {
                     ((u16::from_be_bytes(data[..2].try_into()?) as u32) << 4)
                         + u16::from_be_bytes(data[2..].try_into()?) as u32
-                });
+                };
+                ensure!(
+                    address < FLASH_SIZE,
+                    "entry point exceeds MCS51 address space"
+                );
+                entry = Some(address);
             }
             _ => bail!("unsupported HEX record"),
         }
@@ -140,6 +147,10 @@ pub fn to_hex(elf: &[u8]) -> Result<Vec<u8>> {
             && u16_at(elf, 42)? == 32,
         "expected STC ELF32 load image"
     );
+    ensure!(
+        u32_at(elf, 24)? < FLASH_SIZE,
+        "entry point exceeds MCS51 address space"
+    );
     let mut image = BTreeMap::new();
     let phoff = u32_at(elf, 28)? as usize;
     for i in 0..u16_at(elf, 44)? as usize {
@@ -150,8 +161,9 @@ pub fn to_hex(elf: &[u8]) -> Result<Vec<u8>> {
         let size = u32_at(elf, p + 16)? as usize;
         ensure!(
             size <= u32_at(elf, p + 20)? as usize
-                && size <= 0x1000000
-                && (addr as u64 + size as u64) <= 0x1000000,
+                && addr < FLASH_SIZE
+                && size <= FLASH_SIZE as usize
+                && (addr as u64 + size as u64) <= FLASH_SIZE as u64,
             "invalid ELF flash segment"
         );
         let bytes = elf
@@ -191,18 +203,56 @@ pub fn to_hex(elf: &[u8]) -> Result<Vec<u8>> {
 mod tests {
     use super::*;
     #[test]
-    fn load_image_roundtrip_preserves_sparse_24_bit_flash() {
+    fn load_image_roundtrip_preserves_sparse_16_bit_flash() {
         let mut hex = String::new();
         record(&mut hex, 0, 0, &[2, 0, 32]);
-        record(&mut hex, 4, 0, &[0, 8]);
+        record(&mut hex, 4, 0, &[0, 0]);
         record(&mut hex, 0, 0xfffe, &[0x55, 0xaa]);
-        record(&mut hex, 4, 0, &[0, 9]);
-        record(&mut hex, 0, 0, &[1, 2, 3]);
         record(&mut hex, 1, 0, &[]);
         let elf = from_hex(hex.as_bytes()).unwrap();
         assert_eq!(from_hex(&to_hex(&elf).unwrap()).unwrap(), elf);
         assert!(to_hex(&elf[..elf.len() - 1]).is_err());
         assert!(from_hex(b":0300000002002000\n:00000001FF\n").is_err());
         assert!(from_hex(b":00000001FF\n").is_err());
+    }
+
+    #[test]
+    fn hex_rejects_high_addresses_and_invalid_text_without_panicking() {
+        for (kind, data) in [(4, vec![0, 1]), (2, vec![0x10, 0])] {
+            let mut hex = String::new();
+            record(&mut hex, kind, 0, &data);
+            record(&mut hex, 0, 0, &[1]);
+            record(&mut hex, 1, 0, &[]);
+            assert!(from_hex(hex.as_bytes()).is_err());
+        }
+        let mut hex = String::new();
+        record(&mut hex, 0, 0xffff, &[1, 2]);
+        record(&mut hex, 1, 0, &[]);
+        assert!(from_hex(hex.as_bytes()).is_err());
+        // A byte-indexed UTF-8 slice previously panicked on this input.
+        assert!(from_hex(":€A\n".as_bytes()).is_err());
+        for kind in [3, 5] {
+            let mut hex = String::new();
+            record(&mut hex, 0, 0, &[1]);
+            record(&mut hex, kind, 0, &[0x10, 0, 0, 0]);
+            record(&mut hex, 1, 0, &[]);
+            assert!(from_hex(hex.as_bytes()).is_err());
+        }
+    }
+
+    #[test]
+    fn elf_rejects_high_flash_segments_and_entry_points() {
+        let mut hex = String::new();
+        record(&mut hex, 0, 0, &[1, 2]);
+        record(&mut hex, 1, 0, &[]);
+        let original = from_hex(hex.as_bytes()).unwrap();
+        for address in [0xffff, 0x10000, 0xffffff, u32::MAX] {
+            let mut elf = original.clone();
+            put32(&mut elf, 52 + 12, address);
+            assert!(to_hex(&elf).is_err());
+        }
+        let mut elf = original;
+        put32(&mut elf, 24, FLASH_SIZE);
+        assert!(to_hex(&elf).is_err());
     }
 }

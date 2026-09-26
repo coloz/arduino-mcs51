@@ -27,14 +27,29 @@ static STC_WIRE_HOT uint8_t wire_bus_held;
 static uint8_t wire_config_error;
 static uint8_t wire_last_error;
 
-#if defined(__SDCC_mcs251)
+#if STC_WIRE_FAST_DEFAULT && (defined(__SDCC_mcs51) || defined(__SDCC_mcs251) || defined(STC_WIRE_HOST_FAST_PIN_HOOKS))
+#define STC_WIRE_FAST_PINS
 /* The default pair is owned/configured as open drain by Wire_begin(). Bit
- * instructions avoid pin validation, PWM detachment and port dispatch on
+ * instructions avoid pin validation and port dispatch on
  * every bus edge, and cannot overwrite unrelated P3 latch bits from an ISR.
  * Other pin selections retain the portable GPIO path. */
+#include "hal/wiring_digital_private.h"
+static STC_WIRE_HOT uint8_t wire_fast_default;
+#if defined(STC_WIRE_HOST_FAST_PIN_HOOKS)
+void stc_wire_fast_write(uint8_t pin, uint8_t value);
+uint8_t stc_wire_fast_read(uint8_t pin);
+#define WIRE_FAST_WRITE_SDA(v) stc_wire_fast_write(P3_2, (v))
+#define WIRE_FAST_WRITE_SCL(v) stc_wire_fast_write(P3_3, (v))
+#define WIRE_FAST_READ_SDA() stc_wire_fast_read(P3_2)
+#define WIRE_FAST_READ_SCL() stc_wire_fast_read(P3_3)
+#else
 static __sbit __at (0xb2) wire_p32;
 static __sbit __at (0xb3) wire_p33;
-static uint8_t wire_fast_default;
+#define WIRE_FAST_WRITE_SDA(v) (wire_p32 = (v))
+#define WIRE_FAST_WRITE_SCL(v) (wire_p33 = (v))
+#define WIRE_FAST_READ_SDA() wire_p32
+#define WIRE_FAST_READ_SCL() wire_p33
+#endif
 #endif
 
 uint8_t Wire_configurationError(void) STC_WIRE_REENTRANT { return wire_config_error; }
@@ -197,48 +212,48 @@ static void wire_delay_half_period(void)
 
 static void wire_drive_sda_low(void)
 {
-#if defined(__SDCC_mcs251)
-    if (wire_fast_default) { wire_p32 = 0; return; }
+#ifdef STC_WIRE_FAST_PINS
+    if (wire_fast_default && !(__stc_digital_input_pins[3] & 4u)) { WIRE_FAST_WRITE_SDA(0); return; }
 #endif
     digitalWrite(wire_sda_pin, LOW);
 }
 
 static void wire_release_sda(void)
 {
-#if defined(__SDCC_mcs251)
-    if (wire_fast_default) { wire_p32 = 1; return; }
+#ifdef STC_WIRE_FAST_PINS
+    if (wire_fast_default && !(__stc_digital_input_pins[3] & 4u)) { WIRE_FAST_WRITE_SDA(1); return; }
 #endif
     digitalWrite(wire_sda_pin, HIGH);
 }
 
 static void wire_drive_scl_low(void)
 {
-#if defined(__SDCC_mcs251)
-    if (wire_fast_default) { wire_p33 = 0; return; }
+#ifdef STC_WIRE_FAST_PINS
+    if (wire_fast_default && !(__stc_digital_input_pins[3] & 8u)) { WIRE_FAST_WRITE_SCL(0); return; }
 #endif
     digitalWrite(wire_scl_pin, LOW);
 }
 
 static void wire_release_scl(void)
 {
-#if defined(__SDCC_mcs251)
-    if (wire_fast_default) { wire_p33 = 1; return; }
+#ifdef STC_WIRE_FAST_PINS
+    if (wire_fast_default && !(__stc_digital_input_pins[3] & 8u)) { WIRE_FAST_WRITE_SCL(1); return; }
 #endif
     digitalWrite(wire_scl_pin, HIGH);
 }
 
 static uint8_t wire_read_sda(void)
 {
-#if defined(__SDCC_mcs251)
-    if (wire_fast_default) return wire_p32;
+#ifdef STC_WIRE_FAST_PINS
+    if (wire_fast_default) return WIRE_FAST_READ_SDA();
 #endif
     return digitalRead(wire_sda_pin) != LOW;
 }
 
 static uint8_t wire_read_scl(void)
 {
-#if defined(__SDCC_mcs251)
-    if (wire_fast_default) return wire_p33;
+#ifdef STC_WIRE_FAST_PINS
+    if (wire_fast_default) return WIRE_FAST_READ_SCL();
 #endif
     return digitalRead(wire_scl_pin) != LOW;
 }
@@ -466,7 +481,7 @@ void Wire_begin(void) STC_WIRE_REENTRANT
 #ifdef STC_WIRE_HARDWARE
     wire_hardware_begin();
 #endif
-#if defined(__SDCC_mcs251)
+#ifdef STC_WIRE_FAST_PINS
     wire_fast_default = wire_sda_pin == P3_2 && wire_scl_pin == P3_3;
 #endif
     wire_release_bus();
@@ -503,6 +518,9 @@ void Wire_end(void) STC_WIRE_REENTRANT
     wire_release_bus();
     pinMode(wire_sda_pin, INPUT);
     pinMode(wire_scl_pin, INPUT);
+#ifdef STC_WIRE_FAST_PINS
+    wire_fast_default = 0u;
+#endif
     wire_tx_length = 0u;
     wire_tx_overflow = 0u;
     wire_transmitting = 0u;

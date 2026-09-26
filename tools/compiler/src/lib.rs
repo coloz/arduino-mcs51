@@ -10,6 +10,16 @@ use anyhow::{Result, bail, ensure};
 use std::path::PathBuf;
 use util::*;
 
+/// Materialize a checked Arduino bundle without repeatedly reopening its cache
+/// or spawning another copy of the driver for every object.
+pub fn archive_objects(
+    sdar: &std::path::Path,
+    archive: &std::path::Path,
+    objects: &[PathBuf],
+) -> Result<()> {
+    cache::archive_many(sdar, archive, objects, &["rcs".into()])
+}
+
 fn entry(mut args: Vec<String>) -> Result<()> {
     if args.is_empty() || args[0] == "--help" {
         println!(

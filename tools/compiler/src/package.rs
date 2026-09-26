@@ -129,10 +129,6 @@ pub fn platform(source: &Path, output: &Path) -> Result<()> {
         "boards.txt",
         "platform.txt",
         "README.md",
-        "COMPATIBILITY.md",
-        "RELEASE_NOTES.md",
-        "SOURCES.md",
-        "VALIDATION.md",
         "LICENSE",
     ] {
         write(stage.join(name), fs::read(source.join(name))?)?;

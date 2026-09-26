@@ -4,7 +4,7 @@ use anyhow::{Context, Result, ensure};
 use serde_json::{Value, json};
 use sha2::{Digest, Sha256};
 use std::{
-    collections::BTreeMap,
+    collections::{BTreeMap, BTreeSet},
     fs,
     io::{Cursor, Read, Write},
     path::{Path, PathBuf},
@@ -45,7 +45,16 @@ fn safe_name(name: &str) -> Result<()> {
     );
     Ok(())
 }
-fn pack(kind: &str, mut files: Files, mut meta: Value) -> Result<Vec<u8>> {
+fn pack(kind: &str, files: Files, meta: Value) -> Result<Vec<u8>> {
+    pack_updated(kind, files, meta, None, &BTreeSet::new())
+}
+fn pack_updated(
+    kind: &str,
+    mut files: Files,
+    mut meta: Value,
+    mut previous: Option<&mut ZipArchive<Cursor<&[u8]>>>,
+    changed: &BTreeSet<String>,
+) -> Result<Vec<u8>> {
     ensure!(
         !files.contains_key("manifest.json"),
         "reserved bundle member"
@@ -63,13 +72,26 @@ fn pack(kind: &str, mut files: Files, mut meta: Value) -> Result<Vec<u8>> {
     let mut zip = ZipWriter::new(Cursor::new(Vec::new()));
     for (name, bytes) in files {
         safe_name(&name)?;
-        zip.start_file(name, SimpleFileOptions::default())?;
-        zip.write_all(&bytes)?;
+        if name != "manifest.json"
+            && !changed.contains(&name)
+            && let Some(previous) = previous.as_mut()
+        {
+            // The same archive was fully decompressed and checksum-validated
+            // by unpack_checked. Copy its compressed bytes without Deflate
+            // again for every subsequent archive-unit invocation.
+            zip.raw_copy_file(previous.by_name(&name)?)?;
+        } else {
+            zip.start_file(name, SimpleFileOptions::default())?;
+            zip.write_all(&bytes)?;
+        }
     }
     Ok(zip.finish()?.into_inner())
 }
 fn unpack(bytes: &[u8], kind: &str) -> Result<(Files, Value)> {
     let mut zip = ZipArchive::new(Cursor::new(bytes))?;
+    unpack_checked(&mut zip, kind)
+}
+fn unpack_checked(zip: &mut ZipArchive<Cursor<&[u8]>>, kind: &str) -> Result<(Files, Value)> {
     let mut files = Files::new();
     let mut total = 0u64;
     for i in 0..zip.len() {
@@ -293,11 +315,21 @@ fn retarget_dependency(dependency: &[u8], temporary: &str) -> Result<Vec<u8>> {
 }
 
 fn archive(output: &Path, args: &[String], incremental: bool) -> Result<()> {
-    let mut files = if incremental && output.exists() {
-        unpack(&fs::read(output)?, "archive")?.0
+    let previous_bytes = if incremental && output.exists() {
+        Some(fs::read(output)?)
+    } else {
+        None
+    };
+    let mut previous = previous_bytes
+        .as_deref()
+        .map(|bytes| ZipArchive::new(Cursor::new(bytes)))
+        .transpose()?;
+    let mut files = if let Some(previous) = previous.as_mut() {
+        unpack_checked(previous, "archive")?.0
     } else {
         Files::new()
     };
+    let mut changed = BTreeSet::new();
     for arg in args {
         let object = absolute(arg)?;
         let bytes = fs::read(&object)?;
@@ -307,9 +339,14 @@ fn archive(output: &Path, args: &[String], incremental: bool) -> Result<()> {
         let member = object
             .strip_prefix(output.parent().unwrap())
             .unwrap_or(&object);
-        files.insert(format!("{}.o", digest(text(member).as_bytes())), bytes);
+        let name = format!("{}.o", digest(text(member).as_bytes()));
+        changed.insert(name.clone());
+        files.insert(name, bytes);
     }
-    write(output, &pack("archive", files, json!({}))?)
+    write(
+        output,
+        &pack_updated("archive", files, json!({}), previous.as_mut(), &changed)?,
+    )
 }
 
 fn materialize_unit(bytes: &[u8], directory: &Path, prefix: &str) -> Result<PathBuf> {
@@ -349,7 +386,7 @@ fn materialize_unit(bytes: &[u8], directory: &Path, prefix: &str) -> Result<Path
     Ok(object)
 }
 
-fn materialize_archive(platform: &Path, sdar: &Path, bytes: &[u8], work: &Path) -> Result<PathBuf> {
+fn materialize_archive(sdar: &Path, bytes: &[u8], work: &Path) -> Result<PathBuf> {
     let directory = work.join("archives").join(digest(bytes));
     let output = directory.join("core.a");
     let marker = directory.join("complete.json");
@@ -367,6 +404,7 @@ fn materialize_archive(platform: &Path, sdar: &Path, bytes: &[u8], work: &Path) 
     if output.exists() {
         fs::remove_file(&output)?;
     }
+    let mut objects = Vec::with_capacity(units.len());
     for (key, unit) in units {
         let (_, meta) = unpack(&unit, "unit")?;
         let special = matches!(
@@ -378,18 +416,9 @@ fn materialize_archive(platform: &Path, sdar: &Path, bytes: &[u8], work: &Path) 
         } else {
             format!("{}-", &digest(key.as_bytes())[..16])
         };
-        let object = materialize_unit(&unit, &directory, &prefix)?;
-        child(
-            platform,
-            &[
-                "archive".into(),
-                text(sdar),
-                text(&output),
-                text(&object),
-                "rcs".into(),
-            ],
-        )?;
+        objects.push(materialize_unit(&unit, &directory, &prefix)?);
     }
+    stcxx_driver::archive_objects(sdar, &output, &objects)?;
     write(
         &marker,
         &serde_json::to_vec(&json!({"driver":driver,"archive":digest(&fs::read(&output)?)}))?,
@@ -444,7 +473,7 @@ fn link(platform: &Path, args: &[String]) -> Result<()> {
             let actual = if path.extension().unwrap() == "o" {
                 materialize_unit(&bytes, &work.join("objects").join(digest(&bytes)), "")?
             } else {
-                materialize_archive(platform, &sdar, &bytes, &work)?
+                materialize_archive(&sdar, &bytes, &work)?
             };
             forwarded.push(text(actual));
         } else {
@@ -650,6 +679,76 @@ mod tests {
                 .len(),
             1
         );
+    }
+    #[test]
+    fn archive_updates_copy_validated_members_and_reject_corruption() {
+        let temp = tempfile::tempdir().unwrap();
+        let a = temp.path().join("a.o");
+        let b = temp.path().join("b.o");
+        let out = temp.path().join("core.a");
+        let unit = pack("unit", Files::new(), json!({})).unwrap();
+        write(&a, &unit).unwrap();
+        write(&b, &unit).unwrap();
+        archive(&out, &[text(&a)], true).unwrap();
+        let original = fs::read(&out).unwrap();
+        let a_name = format!("{}.o", digest(b"a.o"));
+
+        // A valid older bundle may use Stored. Raw copying must preserve it,
+        // while newly supplied objects still use the normal compression.
+        let mut old = ZipArchive::new(Cursor::new(original)).unwrap();
+        let mut stored = ZipWriter::new(Cursor::new(Vec::new()));
+        for i in 0..old.len() {
+            let mut member = old.by_index(i).unwrap();
+            let mut bytes = Vec::new();
+            member.read_to_end(&mut bytes).unwrap();
+            stored
+                .start_file(
+                    member.name(),
+                    SimpleFileOptions::default().compression_method(zip::CompressionMethod::Stored),
+                )
+                .unwrap();
+            stored.write_all(&bytes).unwrap();
+        }
+        write(&out, &stored.finish().unwrap().into_inner()).unwrap();
+        archive(&out, &[text(&b)], true).unwrap();
+        let updated = fs::read(&out).unwrap();
+        let (files, _) = unpack(&updated, "archive").unwrap();
+        assert_eq!(files.len(), 2);
+        assert_eq!(files[&a_name], unit);
+        let mut zip = ZipArchive::new(Cursor::new(&updated)).unwrap();
+        assert_eq!(
+            zip.by_name(&a_name).unwrap().compression(),
+            zip::CompressionMethod::Stored
+        );
+        let replacement = pack("unit", Files::new(), json!({"replacement":true})).unwrap();
+        write(&a, &replacement).unwrap();
+        archive(&out, &[text(&a)], true).unwrap();
+        let good = fs::read(&out).unwrap();
+        assert_eq!(unpack(&good, "archive").unwrap().0[&a_name], replacement);
+
+        // Neither a bad replacement nor a stale manifest may be accepted,
+        // and a failed update must leave its original archive untouched.
+        write(&a, b"not a bundle").unwrap();
+        assert!(archive(&out, &[text(&a)], true).is_err());
+        assert_eq!(fs::read(&out).unwrap(), good);
+        let mut zip = ZipArchive::new(Cursor::new(&good)).unwrap();
+        let mut corrupt = ZipWriter::new(Cursor::new(Vec::new()));
+        for i in 0..zip.len() {
+            let mut member = zip.by_index(i).unwrap();
+            let mut bytes = Vec::new();
+            member.read_to_end(&mut bytes).unwrap();
+            if member.name() == a_name {
+                bytes = unit.clone();
+            }
+            corrupt
+                .start_file(member.name(), SimpleFileOptions::default())
+                .unwrap();
+            corrupt.write_all(&bytes).unwrap();
+        }
+        let corrupt = corrupt.finish().unwrap().into_inner();
+        write(&out, &corrupt).unwrap();
+        assert!(archive(&out, &[text(&b)], true).is_err());
+        assert_eq!(fs::read(&out).unwrap(), corrupt);
     }
     #[test]
     fn sketch_hook_updates_and_removes_only_owned_files() {

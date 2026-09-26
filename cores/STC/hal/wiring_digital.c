@@ -2,178 +2,57 @@
 #include "stc_sfr.h"
 #include "wiring_digital_private.h"
 
-static uint8_t stc_critical_enter(void)
+static inline uint8_t stc_critical_enter(void)
 {
     uint8_t enabled = (uint8_t)(IE & STC_IE_EA);
     IE &= (uint8_t)~STC_IE_EA;
     return enabled;
 }
 
-static void stc_critical_leave(uint8_t enabled)
+static inline void stc_critical_leave(uint8_t enabled)
 {
     if (enabled != 0u) {
         IE |= STC_IE_EA;
     }
 }
 
-uint8_t digitalPinIsValid(uint8_t pin)
-{
-    uint8_t port = (uint8_t)(pin >> 4);
-    uint8_t mask;
-
-    if ((pin & 0x0fu) > 7u) {
-        return 0u;
-    }
-    mask = digitalPinToBitMask(pin);
-
-    switch (port) {
-    case 0u:
-#ifdef PIN_VALID_MASK_P0
-# if PIN_VALID_MASK_P0 == 0x00U
-        return 0u;
-# elif PIN_VALID_MASK_P0 == 0xffU
-        return 1u;
-# else
-        return (((uint8_t)PIN_VALID_MASK_P0 & mask) != 0u) ? 1u : 0u;
-# endif
-#else
-        return 1u;
+/* Keep both tables in flash: variable shifts are software loops on MCS51.
+ * Returning the valid bit mask lets each public operation decode its pin once. */
+static __code const uint8_t stc_pin_bit_masks[8] = {
+    0x01u, 0x02u, 0x04u, 0x08u, 0x10u, 0x20u, 0x40u, 0x80u
+};
+static __code const uint8_t stc_valid_port_masks[] = {
+    PIN_VALID_MASK_P0, PIN_VALID_MASK_P1, PIN_VALID_MASK_P2, PIN_VALID_MASK_P3,
+    STC_CORE_HAS_PORT4 ? PIN_VALID_MASK_P4 : 0u,
+    STC_CORE_HAS_PORT5 ? PIN_VALID_MASK_P5 : 0u,
+    STC_CORE_HAS_PORT6 ? PIN_VALID_MASK_P6 : 0u,
+    STC_CORE_HAS_PORT7 ? PIN_VALID_MASK_P7 : 0u,
+#if STC_CORE_HAS_PORT8 || STC_CORE_HAS_PORT9 || STC_CORE_HAS_PORTA || STC_CORE_HAS_PORTB
+    STC_CORE_HAS_PORT8 ? PIN_VALID_MASK_P8 : 0u,
 #endif
-    case 1u:
-#ifdef PIN_VALID_MASK_P1
-# if PIN_VALID_MASK_P1 == 0x00U
-        return 0u;
-# elif PIN_VALID_MASK_P1 == 0xffU
-        return 1u;
-# else
-        return (((uint8_t)PIN_VALID_MASK_P1 & mask) != 0u) ? 1u : 0u;
-# endif
-#else
-        return 1u;
+#if STC_CORE_HAS_PORT9 || STC_CORE_HAS_PORTA || STC_CORE_HAS_PORTB
+    STC_CORE_HAS_PORT9 ? PIN_VALID_MASK_P9 : 0u,
 #endif
-    case 2u:
-#ifdef PIN_VALID_MASK_P2
-# if PIN_VALID_MASK_P2 == 0x00U
-        return 0u;
-# elif PIN_VALID_MASK_P2 == 0xffU
-        return 1u;
-# else
-        return (((uint8_t)PIN_VALID_MASK_P2 & mask) != 0u) ? 1u : 0u;
-# endif
-#else
-        return 1u;
-#endif
-    case 3u:
-#ifdef PIN_VALID_MASK_P3
-# if PIN_VALID_MASK_P3 == 0x00U
-        return 0u;
-# elif PIN_VALID_MASK_P3 == 0xffU
-        return 1u;
-# else
-        return (((uint8_t)PIN_VALID_MASK_P3 & mask) != 0u) ? 1u : 0u;
-# endif
-#else
-        return 1u;
-#endif
-#if STC_CORE_HAS_PORT4
-    case 4u:
-# ifdef PIN_VALID_MASK_P4
-#  if PIN_VALID_MASK_P4 == 0x00U
-        return 0u;
-#  elif PIN_VALID_MASK_P4 == 0xffU
-        return 1u;
-#  else
-        return (((uint8_t)PIN_VALID_MASK_P4 & mask) != 0u) ? 1u : 0u;
-#  endif
-# else
-        return 1u;
-# endif
-#endif
-#if STC_CORE_HAS_PORT5
-    case 5u:
-# ifdef PIN_VALID_MASK_P5
-#  if PIN_VALID_MASK_P5 == 0x00U
-        return 0u;
-#  elif PIN_VALID_MASK_P5 == 0xffU
-        return 1u;
-#  else
-        return (((uint8_t)PIN_VALID_MASK_P5 & mask) != 0u) ? 1u : 0u;
-#  endif
-# else
-        return 1u;
-# endif
-#endif
-#if STC_CORE_HAS_PORT6
-    case 6u:
-# ifdef PIN_VALID_MASK_P6
-#  if PIN_VALID_MASK_P6 == 0x00U
-        return 0u;
-#  elif PIN_VALID_MASK_P6 == 0xffU
-        return 1u;
-#  else
-        return (((uint8_t)PIN_VALID_MASK_P6 & mask) != 0u) ? 1u : 0u;
-#  endif
-# else
-        return 1u;
-# endif
-#endif
-#if STC_CORE_HAS_PORT7
-    case 7u:
-# ifdef PIN_VALID_MASK_P7
-#  if PIN_VALID_MASK_P7 == 0x00U
-        return 0u;
-#  elif PIN_VALID_MASK_P7 == 0xffU
-        return 1u;
-#  else
-        return (((uint8_t)PIN_VALID_MASK_P7 & mask) != 0u) ? 1u : 0u;
-#  endif
-# else
-        return 1u;
-# endif
-#endif
-#if STC_CORE_HAS_PORT8
-    case 8u:
-# if PIN_VALID_MASK_P8 == 0x00U
-        return 0u;
-# elif PIN_VALID_MASK_P8 == 0xffU
-        return 1u;
-# else
-        return (((uint8_t)PIN_VALID_MASK_P8 & mask) != 0u) ? 1u : 0u;
-# endif
-#endif
-#if STC_CORE_HAS_PORT9
-    case 9u:
-# if PIN_VALID_MASK_P9 == 0x00U
-        return 0u;
-# elif PIN_VALID_MASK_P9 == 0xffU
-        return 1u;
-# else
-        return (((uint8_t)PIN_VALID_MASK_P9 & mask) != 0u) ? 1u : 0u;
-# endif
-#endif
-#if STC_CORE_HAS_PORTA
-    case 10u:
-# if PIN_VALID_MASK_PA == 0x00U
-        return 0u;
-# elif PIN_VALID_MASK_PA == 0xffU
-        return 1u;
-# else
-        return (((uint8_t)PIN_VALID_MASK_PA & mask) != 0u) ? 1u : 0u;
-# endif
+#if STC_CORE_HAS_PORTA || STC_CORE_HAS_PORTB
+    STC_CORE_HAS_PORTA ? PIN_VALID_MASK_PA : 0u,
 #endif
 #if STC_CORE_HAS_PORTB
-    case 11u:
-# if PIN_VALID_MASK_PB == 0x00U
-        return 0u;
-# elif PIN_VALID_MASK_PB == 0xffU
-        return 1u;
-# else
-        return (((uint8_t)PIN_VALID_MASK_PB & mask) != 0u) ? 1u : 0u;
-# endif
+    PIN_VALID_MASK_PB,
 #endif
-    default:
+};
+
+static uint8_t stc_valid_pin_mask(uint8_t pin)
+{
+    uint8_t port = (uint8_t)(pin >> 4);
+    if (((pin & 0x08u) != 0u) || (port >= sizeof(stc_valid_port_masks))) {
         return 0u;
     }
+    return stc_pin_bit_masks[pin & 0x07u] & stc_valid_port_masks[port];
+}
+
+uint8_t digitalPinIsValid(uint8_t pin)
+{
+    return (stc_valid_pin_mask(pin) != 0u) ? 1u : 0u;
 }
 
 static uint8_t stc_port_read(uint8_t port)
@@ -274,12 +153,12 @@ static void stc_port_latch_write(uint8_t port, uint8_t mask, uint8_t high)
     stc_critical_leave(interrupt_state);
 }
 
-static uint8_t stc_pin_is_input(uint8_t port, uint8_t mask)
+static inline uint8_t stc_pin_is_input(uint8_t port, uint8_t mask)
 {
-    return ((__stc_digital_input_pins[port] & mask) != 0u) ? 1u : 0u;
+    return __stc_digital_input_pins[port] & mask;
 }
 
-static void stc_set_pin_is_input(uint8_t port, uint8_t mask, uint8_t is_input)
+static inline void stc_set_pin_is_input(uint8_t port, uint8_t mask, uint8_t is_input)
 {
     uint8_t interrupt_state = stc_critical_enter();
 
@@ -439,18 +318,18 @@ void digitalWrite(uint8_t pin, uint8_t value) STC_REENTRANT
     uint8_t port;
     uint8_t mask;
 
-    if (digitalPinIsValid(pin) == 0u) {
+    mask = stc_valid_pin_mask(pin);
+    if (mask == 0u) {
         return;
     }
 
     port = (uint8_t)(pin >> 4);
-    mask = digitalPinToBitMask(pin);
     if (stc_pin_is_input(port, mask) != 0u) {
 #if STC_CORE_HAS_PORT_MODE
 # if STC_CORE_HAS_SEPARATE_PULLUP
         stc_port_set_mode(port, mask, 1u, 0u);
         stc_port_latch_write(port, mask, 1u);
-        stc_port_set_pullup(port, mask, (value != LOW) ? 1u : 0u);
+        stc_port_set_pullup(port, mask, value);
 # else
         if (value != LOW) {
             /* Arduino HIGH on an input enables the STC quasi-mode pull-up. */
@@ -471,7 +350,7 @@ void digitalWrite(uint8_t pin, uint8_t value) STC_REENTRANT
         return;
     }
 
-    stc_port_latch_write(port, mask, (value != LOW) ? 1u : 0u);
+    stc_port_latch_write(port, mask, value);
 }
 
 int digitalRead(uint8_t pin)
@@ -479,12 +358,12 @@ int digitalRead(uint8_t pin)
     uint8_t port;
     uint8_t mask;
 
-    if (digitalPinIsValid(pin) == 0u) {
+    mask = stc_valid_pin_mask(pin);
+    if (mask == 0u) {
         return LOW;
     }
 
     port = (uint8_t)(pin >> 4);
-    mask = digitalPinToBitMask(pin);
     return ((stc_port_read(port) & mask) != 0u) ? HIGH : LOW;
 }
 
@@ -493,7 +372,8 @@ void pinMode(uint8_t pin, uint8_t mode) STC_REENTRANT
     uint8_t port;
     uint8_t mask;
 
-    if (digitalPinIsValid(pin) == 0u) {
+    mask = stc_valid_pin_mask(pin);
+    if (mask == 0u) {
         return;
     }
     if ((mode != INPUT) && (mode != OUTPUT) &&
@@ -503,7 +383,6 @@ void pinMode(uint8_t pin, uint8_t mode) STC_REENTRANT
     }
 
     port = (uint8_t)(pin >> 4);
-    mask = digitalPinToBitMask(pin);
 
 #if STC_CORE_ADC_USES_P1ASF
     if (port == 1u) {

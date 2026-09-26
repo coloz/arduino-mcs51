@@ -16,4 +16,4 @@ adapters. Its generic pointers are 24-bit, XDATA/function pointers 16-bit,
 size_t 16-bit, and byte order little endian. Do not substitute MCS251 ABI files.
 
 Board capabilities are generated from `tools/variants/devices.json`.
-See `COMPATIBILITY.md` and `VALIDATION.md` at the project root.
+See the [platform README](../../README.md) for capabilities and validation limits.

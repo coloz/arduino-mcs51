@@ -21,7 +21,7 @@
       }
     }
   },
-  "validation": "VALIDATION.md",
+  "validation": "README.md",
   "api_version": 1,
   "include_directories": [
     ".",
